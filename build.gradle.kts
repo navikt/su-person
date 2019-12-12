@@ -33,3 +33,22 @@ tasks.withType<Test> {
 tasks.withType<Wrapper> {
     gradleVersion = "6.0.1"
 }
+
+tasks.named<Jar>("jar") {
+   baseName = "app"
+
+   manifest {
+      attributes["Main-Class"] = "no.nav.su.person.MainKt.kt"
+      attributes["Class-Path"] = configurations.runtimeClasspath.get().joinToString(separator = " ") {
+         it.name
+      }
+   }
+
+   doLast {
+      configurations.runtimeClasspath.get().forEach {
+         val file = File("$buildDir/libs/${it.name}")
+         if (!file.exists())
+            it.copyTo(file)
+      }
+   }
+}
