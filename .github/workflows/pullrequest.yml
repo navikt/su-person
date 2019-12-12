@@ -1,0 +1,19 @@
+name: Bygg og deploy ved push til master
+
+on:
+   # Trigger the workflow on pull request
+   pull_request
+
+env:
+   IMAGE: docker.pkg.github.com/${{ github.repository }}/su-person:${{ github.sha }}
+
+jobs:
+
+   build:
+      name: Build and test pull request
+      runs-on: ubuntu-latest
+      steps:
+         - uses: actions/checkout@v1
+         - name: Build and test pull request
+           run: |
+              gradle build test
