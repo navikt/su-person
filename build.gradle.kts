@@ -38,7 +38,7 @@ tasks.named<Jar>("jar") {
    baseName = "app"
 
    manifest {
-      attributes["Main-Class"] = "no.nav.su.person.MainKt.kt"
+      attributes["Main-Class"] = "no.nav.su.person.MainKt"
       attributes["Class-Path"] = configurations.runtimeClasspath.get().joinToString(separator = " ") {
          it.name
       }
