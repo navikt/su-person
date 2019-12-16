@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit
 
 fun main() {
    val app = embeddedServer(Netty, 8080) {
+      app()
    }.start(false)
 
    Runtime.getRuntime().addShutdownHook(Thread {
