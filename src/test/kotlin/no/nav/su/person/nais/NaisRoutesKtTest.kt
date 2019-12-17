@@ -2,7 +2,7 @@ package no.nav.su.person.nais
 
 import com.github.kittinunf.fuel.httpGet
 import io.ktor.http.HttpStatusCode
-import no.nav.su.person.MainTest.Companion.testServer
+import no.nav.su.person.testServer
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
@@ -23,9 +23,6 @@ internal class NaisRoutesKtTest {
       testServer {
          val (_, notFound, _) = "http://localhost:8088/notfound".httpGet().responseString()
          assertEquals(HttpStatusCode.NotFound.value, notFound.statusCode)
-
-         val (_, serverError, _) = "http://localhost:8088/serverError".httpGet().responseString()
-         assertEquals(HttpStatusCode.InternalServerError.value, serverError.statusCode)
       }
    }
 }
