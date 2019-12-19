@@ -8,7 +8,9 @@ import kotlinx.io.core.String
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPrivateKey
 import java.security.interfaces.RSAPublicKey
+import java.time.Instant.now
 import java.util.*
+import java.util.Date.from
 
 class JwtStub(private val issuer: String, private val wireMockServer: WireMockServer) {
 
@@ -27,7 +29,12 @@ class JwtStub(private val issuer: String, private val wireMockServer: WireMockSe
       publicKey = keyPair.public as RSAPublicKey
    }
 
-   fun createTokenFor(subject: String, groups: List<String>, audience: String): String {
+   fun createTokenFor(
+      subject: String = "enSaksbehandler",
+      groups: List<String> = listOf(oidcGroupUuid),
+      audience: String = clientId,
+      expiresAt: Date = from(now().plusSeconds(3600))
+   ): String {
       val algorithm = Algorithm.RSA256(publicKey, privateKey)
 
       return JWT.create()
@@ -36,6 +43,7 @@ class JwtStub(private val issuer: String, private val wireMockServer: WireMockSe
          .withKeyId("key-1234")
          .withSubject(subject)
          .withArrayClaim(OIDC_GROUP_CLAIM, groups.toTypedArray())
+         .withExpiresAt(expiresAt)
          .sign(algorithm)
    }
 
