@@ -19,7 +19,7 @@ import java.util.Date.from
 import kotlin.test.assertEquals
 
 @KtorExperimentalAPI
-internal class AuthenitcationComponentTest {
+internal class AuthenticationComponentTest {
 
    companion object {
       private val wireMockServer: WireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
