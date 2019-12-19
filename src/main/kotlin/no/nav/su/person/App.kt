@@ -1,6 +1,5 @@
 package no.nav.su.person
 
-import com.auth0.jwk.JwkProvider
 import com.auth0.jwk.JwkProviderBuilder
 import com.github.kittinunf.fuel.httpGet
 import com.github.kittinunf.fuel.json.responseJson
@@ -10,6 +9,7 @@ import io.ktor.application.install
 import io.ktor.application.log
 import io.ktor.auth.Authentication
 import io.ktor.auth.authenticate
+import io.ktor.auth.jwt.JWTCredential
 import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
 import io.ktor.http.HttpStatusCode
@@ -21,27 +21,26 @@ import no.nav.su.person.nais.nais
 import org.json.JSONObject
 import java.net.URL
 
-const val personPath = "/person"
+const val PERSON_PATH = "/person"
+const val OIDC_ISSUER = "issuer"
+const val OIDC_GROUP_CLAIM = "groups"
+const val OIDC_JWKS_URI = "jwks_uri"
 
 @KtorExperimentalAPI
 fun Application.app(env: Environment = Environment()) {
 
    val jwkConfig = getJWKConfig(env.oidcConfigUrl)
-   val jwkProvider = getJWKProvider(jwkConfig)
+   val jwkProvider = JwkProviderBuilder(URL(jwkConfig.getString(OIDC_JWKS_URI))).build()
 
    install(Authentication) {
       jwt {
-         verifier(jwkProvider, jwkConfig["issuer"].toString())
-         realm = applicationId()
+         verifier(jwkProvider, jwkConfig.getString(OIDC_ISSUER))
          validate { credentials ->
-            val groupsClaim = credentials.payload.getClaim("groups").asList(String::class.java)
-            if (env.requiredGroup in groupsClaim && env.clientId in credentials.payload.audience) {
+            val groupsClaim = credentials.payload.getClaim(OIDC_GROUP_CLAIM).asList(String::class.java)
+            if (env.oidcRequiredGroup in groupsClaim && env.oidcClientId in credentials.payload.audience) {
                JWTPrincipal(credentials.payload)
             } else {
-               log.info(
-                  "${credentials.payload.getClaim("NAVident").asString()} with audience ${credentials.payload.audience} " +
-                     "is not authorized to use this app, denying access"
-               )
+               logInvalidCredentials(credentials)
                null
             }
          }
@@ -49,7 +48,7 @@ fun Application.app(env: Environment = Environment()) {
    }
    routing {
       authenticate {
-         get(personPath) {
+         get(PERSON_PATH) {
             call.respond("hooha")
          }
       }
@@ -57,12 +56,13 @@ fun Application.app(env: Environment = Environment()) {
    }
 }
 
-private fun getJWKProvider(jwkConfig: JSONObject): JwkProvider {
-   val jwksUri = jwkConfig["jwks_uri"] ?: throw RuntimeException("Could not find JWKS URI in OIDC config")
-   return JwkProviderBuilder(URL(jwksUri.toString())).build()
+private fun Application.logInvalidCredentials(credentials: JWTCredential) {
+   log.info(
+      "${credentials.payload.getClaim("NAVident").asString()} with audience ${credentials.payload.audience} " +
+         "is not authorized to use this app, denying access"
+   )
 }
 
-@KtorExperimentalAPI
 private fun getJWKConfig(oidcConfigUrl: String): JSONObject {
    val (_, response, result) = oidcConfigUrl.httpGet().responseJson()
    if (response.statusCode != HttpStatusCode.OK.value) {
@@ -71,7 +71,3 @@ private fun getJWKConfig(oidcConfigUrl: String): JSONObject {
       return result.get().obj()
    }
 }
-
-@KtorExperimentalAPI
-fun Application.applicationId() =
-   this.environment.config.propertyOrNull("ktor.application.id")?.getString() ?: "Application"

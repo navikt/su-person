@@ -35,7 +35,7 @@ class JwtStub(private val issuer: String, private val wireMockServer: WireMockSe
          .withAudience(audience)
          .withKeyId("key-1234")
          .withSubject(subject)
-         .withArrayClaim("groups", groups.toTypedArray())
+         .withArrayClaim(OIDC_GROUP_CLAIM, groups.toTypedArray())
          .sign(algorithm)
    }
 
