@@ -19,5 +19,5 @@ spec:
       paths:
          -  mountPath: /var/run/secrets/nais.io/vault/supstonad
             kvPath: /secret/supstonad/{{ secret_env }}
-         -  mountPath: /var/run/secrets/nais.io/vault
+         -  mountPath: /var/run/secrets/nais.io/vault/su-person
             kvPath: /kv/{{ cluster }}/fss/su-person/default
