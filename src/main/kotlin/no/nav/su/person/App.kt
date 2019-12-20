@@ -19,6 +19,7 @@ import io.ktor.routing.routing
 import io.ktor.util.KtorExperimentalAPI
 import no.nav.su.person.nais.nais
 import org.json.JSONObject
+import org.slf4j.Logger
 import java.net.URL
 
 const val PERSON_PATH = "/person"
@@ -28,6 +29,8 @@ const val OIDC_JWKS_URI = "jwks_uri"
 
 @KtorExperimentalAPI
 fun Application.app(env: Environment = Environment()) {
+
+   setUncaughtExceptionHandler(logger = log)
 
    val jwkConfig = getJWKConfig(env.oidcConfigUrl)
    val jwkProvider = JwkProviderBuilder(URL(jwkConfig.getString(OIDC_JWKS_URI))).build()
@@ -69,5 +72,11 @@ private fun getJWKConfig(oidcConfigUrl: String): JSONObject {
       throw RuntimeException("Could not get JWK config from provider")
    } else {
       return result.get().obj()
+   }
+}
+
+private fun setUncaughtExceptionHandler(logger: Logger) {
+   Thread.currentThread().setUncaughtExceptionHandler { thread, err ->
+      logger.error("uncaught exception in thread ${thread.name}: ${err.message}", err)
    }
 }
