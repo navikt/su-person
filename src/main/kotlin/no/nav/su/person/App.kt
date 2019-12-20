@@ -69,7 +69,7 @@ private fun Application.logInvalidCredentials(credentials: JWTCredential) {
 private fun getJWKConfig(oidcConfigUrl: String): JSONObject {
    val (_, response, result) = oidcConfigUrl.httpGet().responseJson()
    if (response.statusCode != HttpStatusCode.OK.value) {
-      throw RuntimeException("Could not get JWK config from provider")
+      throw RuntimeException("Could not get JWK config from url ${oidcConfigUrl}, got statuscode=${response.statusCode}")
    } else {
       return result.get().obj()
    }
