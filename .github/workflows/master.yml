@@ -37,7 +37,7 @@ jobs:
                docker push ${IMAGE}
 
    deploy_to_dev:
-      name: Deploy to NAIS
+      name: Deploy to dev
       needs: build
       if: github.ref == 'refs/heads/master'
       runs-on: ubuntu-latest
@@ -51,7 +51,7 @@ jobs:
                VARS: nais-dev.json
 
    deploy_to_prod:
-      name: Deploy to NAIS
+      name: Deploy to prod
       needs: build
       if: github.ref == 'refs/heads/master'
       runs-on: ubuntu-latest
