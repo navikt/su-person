@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 val junitJupiterVersion = "5.6.0-M1"
 val ktorVersion = "1.2.5"
 val fuelVersion = "2.2.1"
+val orgJsonVersion = "20180813"
 val wireMockVersion = "2.23.2"
 
 plugins {
@@ -18,8 +19,9 @@ dependencies {
    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
    implementation("io.ktor:ktor-server-netty:$ktorVersion")
    implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
-   implementation ("com.github.kittinunf.fuel:fuel-json:$fuelVersion")
-   implementation ("org.json:json:20180813")
+   implementation("com.github.kittinunf.fuel:fuel-json:$fuelVersion")
+   implementation("com.github.kittinunf.fuel:fuel-jackson:$fuelVersion")
+   implementation("org.json:json:$orgJsonVersion")
 
    implementation("ch.qos.logback:logback-classic:1.2.3")
    implementation("net.logstash.logback:logstash-logback-encoder:5.2")
@@ -27,7 +29,7 @@ dependencies {
       exclude(group = "junit")
    }
 
-   testImplementation("io.ktor:ktor-server-test-host:$ktorVersion"){
+   testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
       exclude(group = "junit")
       exclude(group = "org.eclipse.jetty") // conflicts with WireMock
    }
