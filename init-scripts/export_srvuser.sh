@@ -6,9 +6,9 @@ echo "Attempting to export serviceuser from $DIR if it exists"
 
 if test -d $DIR;
 then
-    for FILE in $DIR/
+    for FILE in `ls $DIR`
     do
        echo "- exporting $FILE"
-       export $FILE=`cat $FILE`
+       export $FILE=`cat $DIR/$FILE`
     done
 fi
