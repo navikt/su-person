@@ -22,3 +22,5 @@ spec:
             kvPath: /secret/supstonad/{{ secret_env }}
          -  mountPath: /var/run/secrets/nais.io/vault/su-person
             kvPath: /kv/{{ cluster }}/fss/su-person/default
+         -  mountPath: /var/run/secrets/nais.io/srvuser
+            kvPath: /serviceuser/{{ secret_env }}/srvsupstonad
