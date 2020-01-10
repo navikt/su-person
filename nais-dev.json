@@ -1,5 +1,4 @@
 {
-   "ingress": "https://su-person.nais.preprod.local",
    "secret_env": "dev",
    "cluster": "preprod"
 }
