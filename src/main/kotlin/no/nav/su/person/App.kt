@@ -12,35 +12,41 @@ import io.ktor.auth.authenticate
 import io.ktor.auth.jwt.JWTCredential
 import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
-import io.ktor.http.HttpStatusCode
+import io.ktor.features.ContentNegotiation
+import io.ktor.http.HttpHeaders.Authorization
+import io.ktor.http.HttpStatusCode.Companion.OK
+import io.ktor.jackson.jackson
+import io.ktor.request.header
 import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.util.KtorExperimentalAPI
 import no.nav.su.person.nais.nais
+import no.nav.su.person.pdl.PdlConsumer
+import no.nav.su.person.sts.StsConsumer
 import org.json.JSONObject
 import org.slf4j.Logger
 import java.net.URL
 
 const val PERSON_PATH = "/person"
-const val OIDC_ISSUER = "issuer"
-const val OIDC_GROUP_CLAIM = "groups"
-const val OIDC_JWKS_URI = "jwks_uri"
 
 @KtorExperimentalAPI
 fun Application.app(env: Environment = Environment()) {
 
    setUncaughtExceptionHandler(logger = log)
 
-   val jwkConfig = getJWKConfig(env.oidcConfigUrl)
-   val jwkProvider = JwkProviderBuilder(URL(jwkConfig.getString(OIDC_JWKS_URI))).build()
+   val stsConsumer = StsConsumer(env.STS_URL, env.SRV_SUPSTONAD, env.SRV_SUPSTONAD_PWD)
+   val pdlConsumer = PdlConsumer(env.PDL_URL, stsConsumer)
+
+   val jwkConfig = getJWKConfig(env.AZURE_WELLKNOWN_URL)
+   val jwkProvider = JwkProviderBuilder(URL(jwkConfig.getString("jwks_uri"))).build()
 
    install(Authentication) {
       jwt {
-         verifier(jwkProvider, jwkConfig.getString(OIDC_ISSUER))
+         verifier(jwkProvider, jwkConfig.getString("issuer"))
          validate { credentials ->
-            val groupsClaim = credentials.payload.getClaim(OIDC_GROUP_CLAIM).asList(String::class.java)
-            if (env.oidcRequiredGroup in groupsClaim && env.oidcClientId in credentials.payload.audience) {
+            val groupsClaim = credentials.payload.getClaim("groups").asList(String::class.java)
+            if (env.AZURE_REQUIRED_GROUP in groupsClaim && env.AZURE_CLIENT_ID in credentials.payload.audience) {
                JWTPrincipal(credentials.payload)
             } else {
                logInvalidCredentials(credentials)
@@ -49,10 +55,16 @@ fun Application.app(env: Environment = Environment()) {
          }
       }
    }
+
+   install(ContentNegotiation) {
+      jackson {
+      }
+   }
+
    routing {
       authenticate {
          get(PERSON_PATH) {
-            call.respond("hooha")
+            call.respond(OK, pdlConsumer.person(call.parameters["ident"]!!, call.request.header(Authorization)!!)!!)
          }
       }
       nais()
@@ -66,10 +78,10 @@ private fun Application.logInvalidCredentials(credentials: JWTCredential) {
    )
 }
 
-private fun getJWKConfig(oidcConfigUrl: String): JSONObject {
-   val (_, response, result) = oidcConfigUrl.httpGet().responseJson()
-   if (response.statusCode != HttpStatusCode.OK.value) {
-      throw RuntimeException("Could not get JWK config from url ${oidcConfigUrl}, got statuscode=${response.statusCode}")
+private fun getJWKConfig(wellKnownUrl: String): JSONObject {
+   val (_, response, result) = wellKnownUrl.httpGet().responseJson()
+   if (response.statusCode != OK.value) {
+      throw RuntimeException("Could not get JWK config from url ${wellKnownUrl}, got statuscode=${response.statusCode}")
    } else {
       return result.get().obj()
    }

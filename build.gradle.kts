@@ -5,6 +5,8 @@ val ktorVersion = "1.2.5"
 val fuelVersion = "2.2.1"
 val orgJsonVersion = "20180813"
 val wireMockVersion = "2.23.2"
+val mockkVersion = "1.9.3"
+val kotlinJacksonVersion = "2.9.10"
 
 plugins {
    id("org.jetbrains.kotlin.jvm") version "1.3.61"
@@ -23,11 +25,14 @@ dependencies {
    implementation("com.github.kittinunf.fuel:fuel-jackson:$fuelVersion")
    implementation("org.json:json:$orgJsonVersion")
 
+
    implementation("ch.qos.logback:logback-classic:1.2.3")
    implementation("net.logstash.logback:logstash-logback-encoder:5.2")
    implementation("io.ktor:ktor-auth-jwt:$ktorVersion") {
       exclude(group = "junit")
    }
+   implementation ("io.ktor:ktor-jackson:$ktorVersion")
+   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$kotlinJacksonVersion")
 
    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
       exclude(group = "junit")
@@ -39,6 +44,7 @@ dependencies {
    testImplementation("com.github.tomakehurst:wiremock:$wireMockVersion") {
       exclude(group = "junit")
    }
+   testImplementation("io.mockk:mockk:$mockkVersion")
 
 }
 

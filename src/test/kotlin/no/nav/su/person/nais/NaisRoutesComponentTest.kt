@@ -17,13 +17,32 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
 @KtorExperimentalAPI
-internal class NaisRoutesKtTest {
+internal class NaisRoutesComponentTest {
+
+   @Test
+   fun naisRoutes() {
+      withTestApplication({
+         app(testEnvironment(wireMockServer.baseUrl()))
+      }) {
+         handleRequest(Get, IS_ALIVE_PATH)
+      }.apply {
+         assertEquals(OK, response.status())
+         assertEquals("ALIVE", response.content)
+      }
+
+      withTestApplication({
+         app(testEnvironment(wireMockServer.baseUrl()))
+      }) {
+         handleRequest(Get, IS_READY_PATH)
+      }.apply {
+         assertEquals(OK, response.status())
+         assertEquals("READY", response.content)
+      }
+   }
 
    companion object {
       private val wireMockServer: WireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
-      private val jwtStub by lazy {
-         JwtStub("azure", wireMockServer)
-      }
+      private val jwtStub by lazy { JwtStub(wireMockServer) }
 
       @BeforeAll
       @JvmStatic
@@ -37,28 +56,6 @@ internal class NaisRoutesKtTest {
       @JvmStatic
       fun stop() {
          wireMockServer.stop()
-      }
-
-   }
-
-   @Test
-   fun naisRoutes() {
-      withTestApplication({
-         app(testEnvironment(wireMockServer = wireMockServer))
-      }) {
-         handleRequest(Get, IS_ALIVE_PATH)
-      }.apply {
-         assertEquals(OK, response.status())
-         assertEquals("ALIVE", response.content)
-      }
-
-      withTestApplication({
-         app(testEnvironment(wireMockServer = wireMockServer))
-      }) {
-         handleRequest(Get, IS_READY_PATH)
-      }.apply {
-         assertEquals(OK, response.status())
-         assertEquals("READY", response.content)
       }
    }
 }
