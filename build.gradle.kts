@@ -5,6 +5,7 @@ val ktorVersion = "1.2.5"
 val fuelVersion = "2.2.1"
 val orgJsonVersion = "20180813"
 val wireMockVersion = "2.23.2"
+val micrometerRegistryPrometheusVersion = "1.3.2"
 
 plugins {
    id("org.jetbrains.kotlin.jvm") version "1.3.61"
@@ -28,6 +29,9 @@ dependencies {
    implementation("io.ktor:ktor-auth-jwt:$ktorVersion") {
       exclude(group = "junit")
    }
+
+   implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
+   implementation("io.micrometer:micrometer-registry-prometheus:$micrometerRegistryPrometheusVersion")
 
    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
       exclude(group = "junit")

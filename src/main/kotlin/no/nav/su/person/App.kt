@@ -13,10 +13,21 @@ import io.ktor.auth.jwt.JWTCredential
 import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
 import io.ktor.http.HttpStatusCode
+import io.ktor.metrics.micrometer.MicrometerMetrics
 import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.util.KtorExperimentalAPI
+import io.micrometer.core.instrument.Clock
+import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics
+import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
+import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics
+import io.micrometer.core.instrument.binder.logging.LogbackMetrics
+import io.micrometer.core.instrument.binder.system.ProcessorMetrics
+import io.micrometer.prometheus.PrometheusConfig
+import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.prometheus.client.CollectorRegistry
 import no.nav.su.person.nais.nais
 import org.json.JSONObject
 import org.slf4j.Logger
@@ -31,6 +42,8 @@ const val OIDC_JWKS_URI = "jwks_uri"
 fun Application.app(env: Environment = Environment()) {
 
    setUncaughtExceptionHandler(logger = log)
+
+   val collectorRegistry = CollectorRegistry.defaultRegistry
 
    val jwkConfig = getJWKConfig(env.oidcConfigUrl)
    val jwkProvider = JwkProviderBuilder(URL(jwkConfig.getString(OIDC_JWKS_URI))).build()
@@ -49,13 +62,30 @@ fun Application.app(env: Environment = Environment()) {
          }
       }
    }
+
+   install(MicrometerMetrics) {
+      registry = PrometheusMeterRegistry(
+         PrometheusConfig.DEFAULT,
+         collectorRegistry,
+         Clock.SYSTEM
+      )
+      meterBinders = listOf(
+         ClassLoaderMetrics(),
+         JvmMemoryMetrics(),
+         JvmGcMetrics(),
+         ProcessorMetrics(),
+         JvmThreadMetrics(),
+         LogbackMetrics()
+      )
+   }
+
    routing {
       authenticate {
          get(PERSON_PATH) {
             call.respond("hooha")
          }
       }
-      nais()
+      nais(collectorRegistry)
    }
 }
 
