@@ -14,23 +14,24 @@ const val NAV_CONSUMER_TOKEN = "Nav-Consumer-Token"
 const val NAV_TEMA = "Tema"
 const val SUP = "SUP"
 
-class PdlConsumer(private val pdlUrl: String, private val stsConsumer: StsConsumer) {
+class PdlConsumer(private val pdlUrl: String, private val systembruker: StsConsumer) {
    companion object {
       private val LOG = LoggerFactory.getLogger(PdlConsumer::class.java)
+      private val jsonMapper = jacksonObjectMapper()
    }
 
-   fun person(ident: String, oidcToken: String): PdlPerson? {
+   fun person(ident: String, autorisertSaksbehandler: String): PdlPerson? {
 
       val query = this::class.java.getResource("/hentPerson.graphql").readText()
       val pdlRequest = PdlRequest(query, Variables(ident = ident))
 
       val (_, _, result) = "$pdlUrl/graphql".httpPost()
-         .header(Authorization, oidcToken)
-         .header(NAV_CONSUMER_TOKEN, "Bearer ${stsConsumer.token()}")
+         .header(Authorization, "Bearer $autorisertSaksbehandler")
+         .header(NAV_CONSUMER_TOKEN, "Bearer ${systembruker.token()}")
          .header(NAV_TEMA, SUP)
          .header(Accept, Json)
          .header(ContentType, Json)
-         .body(jacksonObjectMapper().writeValueAsString(pdlRequest))
+         .body(jsonMapper.writeValueAsString(pdlRequest))
          .responseObject<PdlResponse<PdlHentPerson>>()
 
       val res = result.get()
