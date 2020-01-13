@@ -12,15 +12,30 @@ import io.ktor.auth.authenticate
 import io.ktor.auth.jwt.JWTCredential
 import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
+<<<<<<< HEAD
+import io.ktor.http.HttpStatusCode
+import io.ktor.metrics.micrometer.MicrometerMetrics
+=======
 import io.ktor.features.ContentNegotiation
 import io.ktor.http.HttpHeaders.Authorization
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.jackson.jackson
 import io.ktor.request.header
+>>>>>>> master
 import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.routing
 import io.ktor.util.KtorExperimentalAPI
+import io.micrometer.core.instrument.Clock
+import io.micrometer.core.instrument.binder.jvm.ClassLoaderMetrics
+import io.micrometer.core.instrument.binder.jvm.JvmGcMetrics
+import io.micrometer.core.instrument.binder.jvm.JvmMemoryMetrics
+import io.micrometer.core.instrument.binder.jvm.JvmThreadMetrics
+import io.micrometer.core.instrument.binder.logging.LogbackMetrics
+import io.micrometer.core.instrument.binder.system.ProcessorMetrics
+import io.micrometer.prometheus.PrometheusConfig
+import io.micrometer.prometheus.PrometheusMeterRegistry
+import io.prometheus.client.CollectorRegistry
 import no.nav.su.person.nais.nais
 import no.nav.su.person.pdl.PdlConsumer
 import no.nav.su.person.sts.StsConsumer
@@ -35,11 +50,18 @@ fun Application.app(env: Environment = Environment()) {
 
    setUncaughtExceptionHandler(logger = log)
 
+<<<<<<< HEAD
+   val collectorRegistry = CollectorRegistry.defaultRegistry
+
+   val jwkConfig = getJWKConfig(env.oidcConfigUrl)
+   val jwkProvider = JwkProviderBuilder(URL(jwkConfig.getString(OIDC_JWKS_URI))).build()
+=======
    val stsConsumer = StsConsumer(env.STS_URL, env.SRV_SUPSTONAD, env.SRV_SUPSTONAD_PWD)
    val pdlConsumer = PdlConsumer(env.PDL_URL, stsConsumer)
 
    val jwkConfig = getJWKConfig(env.AZURE_WELLKNOWN_URL)
    val jwkProvider = JwkProviderBuilder(URL(jwkConfig.getString("jwks_uri"))).build()
+>>>>>>> master
 
    install(Authentication) {
       jwt {
@@ -56,9 +78,26 @@ fun Application.app(env: Environment = Environment()) {
       }
    }
 
+<<<<<<< HEAD
+   install(MicrometerMetrics) {
+      registry = PrometheusMeterRegistry(
+         PrometheusConfig.DEFAULT,
+         collectorRegistry,
+         Clock.SYSTEM
+      )
+      meterBinders = listOf(
+         ClassLoaderMetrics(),
+         JvmMemoryMetrics(),
+         JvmGcMetrics(),
+         ProcessorMetrics(),
+         JvmThreadMetrics(),
+         LogbackMetrics()
+      )
+=======
    install(ContentNegotiation) {
       jackson {
       }
+>>>>>>> master
    }
 
    routing {
@@ -67,7 +106,7 @@ fun Application.app(env: Environment = Environment()) {
             call.respond(OK, pdlConsumer.person(call.parameters["ident"]!!, call.request.header(Authorization)!!)!!)
          }
       }
-      nais()
+      nais(collectorRegistry)
    }
 }
 

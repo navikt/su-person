@@ -5,6 +5,7 @@ val ktorVersion = "1.2.5"
 val fuelVersion = "2.2.1"
 val orgJsonVersion = "20180813"
 val wireMockVersion = "2.23.2"
+val micrometerRegistryPrometheusVersion = "1.3.2"
 val mockkVersion = "1.9.3"
 val kotlinJacksonVersion = "2.9.10"
 
@@ -33,6 +34,9 @@ dependencies {
    }
    implementation ("io.ktor:ktor-jackson:$ktorVersion")
    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$kotlinJacksonVersion")
+
+   implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
+   implementation("io.micrometer:micrometer-registry-prometheus:$micrometerRegistryPrometheusVersion")
 
    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion") {
       exclude(group = "junit")

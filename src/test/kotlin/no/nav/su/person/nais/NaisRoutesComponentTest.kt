@@ -38,6 +38,14 @@ internal class NaisRoutesComponentTest {
          assertEquals(OK, response.status())
          assertEquals("READY", response.content)
       }
+
+      withTestApplication({
+         app(testEnvironment(wireMockServer = wireMockServer))
+      }) {
+         handleRequest(Get, METRICS_PATH)
+      }.apply {
+         assertEquals(OK, response.status())
+      }
    }
 
    companion object {
