@@ -1,5 +1,4 @@
 {
-   "ingress": "https://su-person.nais.adeo.no",
    "secret_env": "prod",
    "cluster": "prod"
 }

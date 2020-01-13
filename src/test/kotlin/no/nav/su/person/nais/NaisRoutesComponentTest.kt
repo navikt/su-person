@@ -17,34 +17,12 @@ import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
 @KtorExperimentalAPI
-internal class NaisRoutesKtTest {
-
-   companion object {
-      private val wireMockServer: WireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
-      private val jwtStub by lazy {
-         JwtStub("azure", wireMockServer)
-      }
-
-      @BeforeAll
-      @JvmStatic
-      fun start() {
-         wireMockServer.start()
-         WireMock.stubFor(jwtStub.stubbedJwkProvider())
-         WireMock.stubFor(jwtStub.stubbedConfigProvider())
-      }
-
-      @AfterAll
-      @JvmStatic
-      fun stop() {
-         wireMockServer.stop()
-      }
-
-   }
+internal class NaisRoutesComponentTest {
 
    @Test
    fun naisRoutes() {
       withTestApplication({
-         app(testEnvironment(wireMockServer = wireMockServer))
+         app(testEnvironment(wireMockServer.baseUrl()))
       }) {
          handleRequest(Get, IS_ALIVE_PATH)
       }.apply {
@@ -53,7 +31,7 @@ internal class NaisRoutesKtTest {
       }
 
       withTestApplication({
-         app(testEnvironment(wireMockServer = wireMockServer))
+         app(testEnvironment(wireMockServer.baseUrl()))
       }) {
          handleRequest(Get, IS_READY_PATH)
       }.apply {
@@ -67,6 +45,25 @@ internal class NaisRoutesKtTest {
          handleRequest(Get, METRICS_PATH)
       }.apply {
          assertEquals(OK, response.status())
+      }
+   }
+
+   companion object {
+      private val wireMockServer: WireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
+      private val jwtStub by lazy { JwtStub(wireMockServer) }
+
+      @BeforeAll
+      @JvmStatic
+      fun start() {
+         wireMockServer.start()
+         WireMock.stubFor(jwtStub.stubbedJwkProvider())
+         WireMock.stubFor(jwtStub.stubbedConfigProvider())
+      }
+
+      @AfterAll
+      @JvmStatic
+      fun stop() {
+         wireMockServer.stop()
       }
    }
 }
