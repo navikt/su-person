@@ -40,7 +40,7 @@ internal class NaisRoutesComponentTest {
       }
 
       withTestApplication({
-         app(testEnvironment(wireMockServer = wireMockServer))
+         app(testEnvironment(wireMockServer.baseUrl()))
       }) {
          handleRequest(Get, METRICS_PATH)
       }.apply {

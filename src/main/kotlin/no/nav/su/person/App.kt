@@ -12,16 +12,12 @@ import io.ktor.auth.authenticate
 import io.ktor.auth.jwt.JWTCredential
 import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
-<<<<<<< HEAD
-import io.ktor.http.HttpStatusCode
 import io.ktor.metrics.micrometer.MicrometerMetrics
-=======
 import io.ktor.features.ContentNegotiation
 import io.ktor.http.HttpHeaders.Authorization
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.jackson.jackson
 import io.ktor.request.header
->>>>>>> master
 import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.routing
@@ -50,18 +46,12 @@ fun Application.app(env: Environment = Environment()) {
 
    setUncaughtExceptionHandler(logger = log)
 
-<<<<<<< HEAD
    val collectorRegistry = CollectorRegistry.defaultRegistry
-
-   val jwkConfig = getJWKConfig(env.oidcConfigUrl)
-   val jwkProvider = JwkProviderBuilder(URL(jwkConfig.getString(OIDC_JWKS_URI))).build()
-=======
    val stsConsumer = StsConsumer(env.STS_URL, env.SRV_SUPSTONAD, env.SRV_SUPSTONAD_PWD)
    val pdlConsumer = PdlConsumer(env.PDL_URL, stsConsumer)
 
    val jwkConfig = getJWKConfig(env.AZURE_WELLKNOWN_URL)
    val jwkProvider = JwkProviderBuilder(URL(jwkConfig.getString("jwks_uri"))).build()
->>>>>>> master
 
    install(Authentication) {
       jwt {
@@ -78,7 +68,6 @@ fun Application.app(env: Environment = Environment()) {
       }
    }
 
-<<<<<<< HEAD
    install(MicrometerMetrics) {
       registry = PrometheusMeterRegistry(
          PrometheusConfig.DEFAULT,
@@ -93,41 +82,40 @@ fun Application.app(env: Environment = Environment()) {
          JvmThreadMetrics(),
          LogbackMetrics()
       )
-=======
-   install(ContentNegotiation) {
-      jackson {
-      }
->>>>>>> master
-   }
 
-   routing {
-      authenticate {
-         get(PERSON_PATH) {
-            call.respond(OK, pdlConsumer.person(call.parameters["ident"]!!, call.request.header(Authorization)!!)!!)
+      install(ContentNegotiation) {
+         jackson()
+      }
+
+      routing {
+         authenticate {
+            get(PERSON_PATH) {
+               call.respond(OK, pdlConsumer.person(call.parameters["ident"]!!, call.request.header(Authorization)!!)!!)
+            }
          }
+         nais(collectorRegistry)
       }
-      nais(collectorRegistry)
    }
 }
 
-private fun Application.logInvalidCredentials(credentials: JWTCredential) {
-   log.info(
-      "${credentials.payload.getClaim("NAVident").asString()} with audience ${credentials.payload.audience} " +
-         "is not authorized to use this app, denying access"
-   )
-}
-
-private fun getJWKConfig(wellKnownUrl: String): JSONObject {
-   val (_, response, result) = wellKnownUrl.httpGet().responseJson()
-   if (response.statusCode != OK.value) {
-      throw RuntimeException("Could not get JWK config from url ${wellKnownUrl}, got statuscode=${response.statusCode}")
-   } else {
-      return result.get().obj()
+  private fun Application.logInvalidCredentials(credentials: JWTCredential) {
+      log.info(
+         "${credentials.payload.getClaim("NAVident").asString()} with audience ${credentials.payload.audience} " +
+            "is not authorized to use this app, denying access"
+      )
    }
-}
 
-private fun setUncaughtExceptionHandler(logger: Logger) {
-   Thread.currentThread().setUncaughtExceptionHandler { thread, err ->
-      logger.error("uncaught exception in thread ${thread.name}: ${err.message}", err)
+   private fun getJWKConfig(wellKnownUrl: String): JSONObject {
+      val (_, response, result) = wellKnownUrl.httpGet().responseJson()
+      if (response.statusCode != OK.value) {
+         throw RuntimeException("Could not get JWK config from url ${wellKnownUrl}, got statuscode=${response.statusCode}")
+      } else {
+         return result.get().obj()
+      }
    }
-}
+
+   private fun setUncaughtExceptionHandler(logger: Logger) {
+      Thread.currentThread().setUncaughtExceptionHandler { thread, err ->
+         logger.error("uncaught exception in thread ${thread.name}: ${err.message}", err)
+      }
+   }
