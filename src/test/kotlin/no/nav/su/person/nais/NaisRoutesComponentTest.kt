@@ -1,19 +1,12 @@
 package no.nav.su.person.nais
 
-import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.ktor.http.HttpMethod.Companion.Get
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.server.testing.handleRequest
 import io.ktor.server.testing.withTestApplication
 import io.ktor.util.KtorExperimentalAPI
-import no.nav.su.person.JwtStub
-import no.nav.su.person.app
-import no.nav.su.person.testEnvironment
-import org.junit.jupiter.api.AfterAll
+import no.nav.su.person.usingMocks
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 
 @KtorExperimentalAPI
@@ -22,7 +15,7 @@ internal class NaisRoutesComponentTest {
    @Test
    fun naisRoutes() {
       withTestApplication({
-         app(testEnvironment(wireMockServer.baseUrl()))
+         usingMocks()
       }) {
          handleRequest(Get, IS_ALIVE_PATH)
       }.apply {
@@ -31,7 +24,7 @@ internal class NaisRoutesComponentTest {
       }
 
       withTestApplication({
-         app(testEnvironment(wireMockServer.baseUrl()))
+         usingMocks()
       }) {
          handleRequest(Get, IS_READY_PATH)
       }.apply {
@@ -40,30 +33,11 @@ internal class NaisRoutesComponentTest {
       }
 
       withTestApplication({
-         app(testEnvironment(wireMockServer.baseUrl()))
+         usingMocks()
       }) {
          handleRequest(Get, METRICS_PATH)
       }.apply {
          assertEquals(OK, response.status())
-      }
-   }
-
-   companion object {
-      private val wireMockServer: WireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
-      private val jwtStub by lazy { JwtStub(wireMockServer) }
-
-      @BeforeAll
-      @JvmStatic
-      fun start() {
-         wireMockServer.start()
-         WireMock.stubFor(jwtStub.stubbedJwkProvider())
-         WireMock.stubFor(jwtStub.stubbedConfigProvider())
-      }
-
-      @AfterAll
-      @JvmStatic
-      fun stop() {
-         wireMockServer.stop()
       }
    }
 }

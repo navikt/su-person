@@ -10,14 +10,16 @@ import java.security.interfaces.RSAPublicKey
 import java.time.Instant
 import java.util.*
 
-class JwtStub(private val wireMockServer: WireMockServer) {
+class JwtStub(private val wireMockServer: WireMockServer? = null) {
 
    private val privateKey: RSAPrivateKey
-   private val publicKey: RSAPublicKey
+   val publicKey: RSAPublicKey
 
    init {
-      val client = WireMock.create().port(wireMockServer.port()).build()
-      WireMock.configureFor(client)
+      wireMockServer?.apply {
+         val client = WireMock.create().port(wireMockServer.port()).build()
+         WireMock.configureFor(client)
+      }
 
       val keyPairGenerator = KeyPairGenerator.getInstance("RSA")
       keyPairGenerator.initialize(512)
@@ -67,8 +69,8 @@ class JwtStub(private val wireMockServer: WireMockServer) {
       WireMock.okJson(
          """
 {
-    "jwks_uri": "${wireMockServer.baseUrl()}/jwks",
-    "token_endpoint": "${wireMockServer.baseUrl()}/token",
+    "jwks_uri": "${wireMockServer?.baseUrl()}/jwks",
+    "token_endpoint": "${wireMockServer?.baseUrl()}/token",
     "issuer": "$AZURE_ISSUER"
 }
 """.trimIndent()
