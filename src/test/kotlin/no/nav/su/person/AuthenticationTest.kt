@@ -13,11 +13,12 @@ import java.util.Date.from
 import kotlin.test.assertEquals
 
 @KtorExperimentalAPI
-internal class AuthenticationComponentTest {
+internal class AuthenticationTest {
 
    @Test
    fun `hent person krever autentisering`() {
       withTestApplication({
+         testEnv()
          usingMocks()
       }) {
          withCallId(Get, PERSON_PATH)
@@ -29,6 +30,7 @@ internal class AuthenticationComponentTest {
    @Test
    fun `hent person ok med gyldig token`() {
       withTestApplication({
+         testEnv()
          usingMocks()
       }) {
          withCallId(Get, "$PERSON_PATH?ident=$TEST_IDENT") {
@@ -44,6 +46,7 @@ internal class AuthenticationComponentTest {
       val token = jwtStub.createTokenFor(audience = "wrong_audience")
 
       withTestApplication({
+         testEnv()
          usingMocks()
       }) {
          withCallId(Get, PERSON_PATH) {
@@ -59,6 +62,7 @@ internal class AuthenticationComponentTest {
       val token = jwtStub.createTokenFor(groups = listOf("WRONG_GROUP_UUID"))
 
       withTestApplication({
+         testEnv()
          usingMocks()
       }) {
          withCallId(Get, PERSON_PATH) {
@@ -74,6 +78,7 @@ internal class AuthenticationComponentTest {
       val token = jwtStub.createTokenFor(expiresAt = from(now().minusSeconds(1)))
 
       withTestApplication({
+         testEnv()
          usingMocks()
       }) {
          withCallId(Get, PERSON_PATH) {

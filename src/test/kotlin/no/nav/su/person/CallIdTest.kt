@@ -17,6 +17,7 @@ class CallIdTest {
    @Test
    fun `return 400 when missing callId on authenticated calls`() {
       withTestApplication({
+         testEnv()
          usingMocks()
       }) {
          handleRequest(Get, secureEndpoint) {
@@ -30,6 +31,7 @@ class CallIdTest {
    @Test
    fun `callId ok`() {
       withTestApplication({
+         testEnv()
          usingMocks()
       }) {
          withCallId(Get, "$secureEndpoint?ident=$TEST_IDENT") {

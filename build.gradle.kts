@@ -32,7 +32,7 @@ dependencies {
    implementation("io.ktor:ktor-auth-jwt:$ktorVersion") {
       exclude(group = "junit")
    }
-   implementation ("io.ktor:ktor-jackson:$ktorVersion")
+   implementation("io.ktor:ktor-jackson:$ktorVersion")
    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$kotlinJacksonVersion")
 
    implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
@@ -71,7 +71,7 @@ tasks.named<Jar>("jar") {
    baseName = "app"
 
    manifest {
-      attributes["Main-Class"] = "no.nav.su.person.MainKt"
+      attributes["Main-Class"] = "no.nav.su.person.ApplicationKt"
       attributes["Class-Path"] = configurations.runtimeClasspath.get().joinToString(separator = " ") {
          it.name
       }

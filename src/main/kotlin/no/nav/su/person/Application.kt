@@ -43,12 +43,11 @@ import java.net.URL
 const val PERSON_PATH = "/person"
 
 @KtorExperimentalAPI
-fun Application.app(
-   env: Environment = Environment(),
-   jwkConfig: JSONObject = getJWKConfig(env.AZURE_WELLKNOWN_URL),
+fun Application.superson(
+   jwkConfig: JSONObject = getJWKConfig(fromEnvironment("azure.wellKnownUrl")),
    jwkProvider: JwkProvider = JwkProviderBuilder(URL(jwkConfig.getString("jwks_uri"))).build(),
-   stsConsumer: StsConsumer = StsConsumer(env.STS_URL, env.SRV_SUPSTONAD, env.SRV_SUPSTONAD_PWD),
-   pdlConsumer: PdlConsumer = PdlConsumer(env.PDL_URL, stsConsumer)
+   stsConsumer: StsConsumer = StsConsumer(fromEnvironment("integrations.sts.url"), fromEnvironment("serviceuser.username"), fromEnvironment("serviceuser.password")),
+   pdlConsumer: PdlConsumer = PdlConsumer(fromEnvironment("integrations.pdl.url"), stsConsumer)
 ) {
 
    setUncaughtExceptionHandler(logger = log)
@@ -60,7 +59,7 @@ fun Application.app(
          verifier(jwkProvider, jwkConfig.getString("issuer"))
          validate { credentials ->
             val groupsClaim = credentials.payload.getClaim("groups").asList(String::class.java)
-            if (env.AZURE_REQUIRED_GROUP in groupsClaim && env.AZURE_CLIENT_ID in credentials.payload.audience) {
+            if (fromEnvironment("azure.requiredGroup") in groupsClaim && fromEnvironment("azure.clientId") in credentials.payload.audience) {
                JWTPrincipal(credentials.payload)
             } else {
                logInvalidCredentials(credentials)
@@ -134,3 +133,8 @@ private fun setUncaughtExceptionHandler(logger: Logger) {
       logger.error("uncaught exception in thread ${thread.name}: ${err.message}", err)
    }
 }
+
+@KtorExperimentalAPI
+fun Application.fromEnvironment(path: String): String = environment.config.property(path).getString()
+
+fun main(args: Array<String>) = io.ktor.server.netty.EngineMain.main(args)

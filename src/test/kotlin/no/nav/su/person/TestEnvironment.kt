@@ -2,7 +2,9 @@ package no.nav.su.person
 
 import com.auth0.jwk.Jwk
 import com.auth0.jwk.JwkProvider
+import com.github.tomakehurst.wiremock.WireMockServer
 import io.ktor.application.Application
+import io.ktor.config.MapApplicationConfig
 import io.ktor.http.HttpHeaders.XRequestId
 import io.ktor.http.HttpMethod
 import io.ktor.server.testing.TestApplicationCall
@@ -21,26 +23,30 @@ const val TEST_IDENT = "12345678910"
 const val AZURE_ISSUER = "azure"
 const val AZURE_REQUIRED_GROUP = "su-gruppa"
 const val AZURE_CLIENT_ID = "clientId"
+const val AZURE_WELL_KNOWN_URL = "/.well-known"
 const val SRV_SUPSTONAD = "srv-supstonad"
 const val SRV_SUPSTONAD_PWD = "srv-supstonad-pwd"
 const val SUBJECT = "enSaksbehandler"
 const val DEFAULT_CALL_ID = "callId"
+const val STS_URL = "/sts"
+const val PDL_URL = "/pdl"
 
-fun testEnvironment(baseUrl: String = "") = Environment(
-   AZURE_WELLKNOWN_URL = "$baseUrl/wellknown",
-   AZURE_CLIENT_ID = AZURE_CLIENT_ID,
-   AZURE_REQUIRED_GROUP = AZURE_REQUIRED_GROUP,
-   SRV_SUPSTONAD = SRV_SUPSTONAD,
-   SRV_SUPSTONAD_PWD = SRV_SUPSTONAD_PWD,
-   STS_URL = baseUrl,
-   PDL_URL = baseUrl
-)
-
+@KtorExperimentalAPI
+fun Application.testEnv(wireMockServer: WireMockServer? = null) {
+   val baseUrl = wireMockServer?.let { it.baseUrl() } ?: ""
+   (environment.config as MapApplicationConfig).apply {
+      put("integrations.sts.url", "$baseUrl$STS_URL")
+      put("integrations.pdl.url", "$baseUrl$PDL_URL")
+      put("azure.requiredGroup", AZURE_REQUIRED_GROUP)
+      put("azure.clientId", AZURE_CLIENT_ID)
+      put("azure.wellKnownUrl", "$baseUrl$AZURE_WELL_KNOWN_URL")
+      put("issuer", AZURE_ISSUER)
+   }
+}
 
 val jwtStub = JwtStub()
 @KtorExperimentalAPI
 fun Application.usingMocks(
-   environment: Environment = testEnvironment(),
    jwkConfig: JSONObject = mockk(relaxed = true),
    jwkProvider: JwkProvider = mockk(relaxed = true),
    stsConsumer: StsConsumer = mockk(relaxed = true),
@@ -55,8 +61,7 @@ fun Application.usingMocks(
       jwkConfig.getString("issuer")
    }.returns(AZURE_ISSUER)
 
-   app(
-      env = environment,
+   superson(
       jwkConfig = jwkConfig,
       jwkProvider = jwkProvider,
       stsConsumer = stsConsumer,
