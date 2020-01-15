@@ -85,6 +85,7 @@ fun Application.superson(
          JvmThreadMetrics(),
          LogbackMetrics()
       )
+   }
 
       install(ContentNegotiation) {
          jackson()
@@ -116,7 +117,6 @@ fun Application.superson(
          }
          nais(collectorRegistry)
       }
-   }
 }
 
 private fun Application.logInvalidCredentials(credentials: JWTCredential) {
