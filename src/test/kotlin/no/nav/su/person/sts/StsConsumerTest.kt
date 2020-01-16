@@ -9,12 +9,9 @@ import com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED
 import no.nav.su.person.SRV_SUPSTONAD
 import no.nav.su.person.SRV_SUPSTONAD_PWD
 import no.nav.su.person.StsStub
-import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 
 internal class StsConsumerTest {
 
@@ -22,6 +19,14 @@ internal class StsConsumerTest {
    fun `should deserialize to Token instance`() {
       stubFor(stsStub.validStsToken())
       assertEquals("default", stsClient().token())
+   }
+
+   @Test
+   fun `throws exception unable to get token`() {
+      stubFor(WireMock.get(WireMock.urlPathEqualTo("/rest/v1/sts/token")).willReturn(WireMock.badRequest()))
+      assertThrows<RuntimeException> {
+         stsClient().token()
+      }
    }
 
    @Test

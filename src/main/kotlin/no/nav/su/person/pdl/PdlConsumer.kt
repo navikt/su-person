@@ -1,8 +1,8 @@
 package no.nav.su.person.pdl
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.github.kittinunf.fuel.gson.responseObject
 import com.github.kittinunf.fuel.httpPost
-import com.github.kittinunf.fuel.jackson.responseObject
 import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpHeaders.Accept
 import io.ktor.http.HttpHeaders.Authorization

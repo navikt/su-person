@@ -22,8 +22,7 @@ dependencies {
    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
    implementation("io.ktor:ktor-server-netty:$ktorVersion")
    implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
-   implementation("com.github.kittinunf.fuel:fuel-json:$fuelVersion")
-   implementation("com.github.kittinunf.fuel:fuel-jackson:$fuelVersion")
+   implementation("com.github.kittinunf.fuel:fuel-gson:$fuelVersion")
    implementation("org.json:json:$orgJsonVersion")
 
 
