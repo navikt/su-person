@@ -20,7 +20,7 @@ class PdlConsumer(private val pdlUrl: String, private val systembruker: StsConsu
       private val jsonMapper = jacksonObjectMapper()
    }
 
-   fun person(ident: String, autorisertSaksbehandler: String): PdlPerson? {
+   fun person(ident: String, autorisertSaksbehandler: String): PdlPerson {
 
       val query = this::class.java.getResource("/hentPerson.graphql").readText()
       val pdlRequest = PdlRequest(query, Variables(ident = ident))
@@ -34,11 +34,9 @@ class PdlConsumer(private val pdlUrl: String, private val systembruker: StsConsu
          .body(jsonMapper.writeValueAsString(pdlRequest))
          .responseObject<PdlResponse<PdlHentPerson>>()
 
-      val res = result.get()
-      res.errors?.let {
-         val error = "Exception while getting person from PDL: $it"
-         LOG.info(error)
-         throw RuntimeException(error)
-      } ?: return res.data?.hentPerson
+      result.get().errors?.let {
+         throw RuntimeException("Exception while getting person from PDL: $it")
+      }
+      return result.get().data!!.hentPerson!!
    }
 }

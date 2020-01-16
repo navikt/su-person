@@ -19,10 +19,9 @@ internal class PdlConsumerTest {
    @Test
    fun `should get Person from PDL`() {
       stubFor(pdlStub.hentPerson(pdlHentPersonOkJson))
-      val response = pdlConsumer().person(TEST_IDENT, "Bearer token")
-      val person = response?.navn?.get(0)
-      assertEquals("OLA", person?.fornavn)
-      assertEquals("NORMANN", person?.etternavn)
+      val pdlPerson = pdlConsumer().person(TEST_IDENT, "Bearer token").navn[0]
+      assertEquals("OLA", pdlPerson.fornavn)
+      assertEquals("NORMANN", pdlPerson.etternavn)
    }
 
    @Test
