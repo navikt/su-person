@@ -1,14 +1,13 @@
 package no.nav.su.person.pdl
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.kittinunf.fuel.gson.responseObject
 import com.github.kittinunf.fuel.httpPost
+import com.google.gson.Gson
 import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpHeaders.Accept
 import io.ktor.http.HttpHeaders.Authorization
 import io.ktor.http.HttpHeaders.ContentType
 import no.nav.su.person.sts.StsConsumer
-import org.slf4j.LoggerFactory
 
 const val NAV_CONSUMER_TOKEN = "Nav-Consumer-Token"
 const val NAV_TEMA = "Tema"
@@ -16,8 +15,7 @@ const val SUP = "SUP"
 
 class PdlConsumer(private val pdlUrl: String, private val systembruker: StsConsumer) {
    companion object {
-      private val LOG = LoggerFactory.getLogger(PdlConsumer::class.java)
-      private val jsonMapper = jacksonObjectMapper()
+      private val gson = Gson()
    }
 
    fun person(ident: String, autorisertSaksbehandler: String): PdlPerson {
@@ -31,7 +29,7 @@ class PdlConsumer(private val pdlUrl: String, private val systembruker: StsConsu
          .header(NAV_TEMA, SUP)
          .header(Accept, Json)
          .header(ContentType, Json)
-         .body(jsonMapper.writeValueAsString(pdlRequest))
+         .body(gson.toJson(pdlRequest))
          .responseObject<PdlResponse<PdlHentPerson>>()
 
       result.get().errors?.let {

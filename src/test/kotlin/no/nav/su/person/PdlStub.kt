@@ -1,8 +1,8 @@
 package no.nav.su.person
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
+import com.google.gson.Gson
 import io.ktor.http.HttpHeaders
 import no.nav.su.person.pdl.*
 
@@ -12,7 +12,7 @@ class PdlStub {
       val pdlRequest = PdlRequest(query, Variables(TEST_IDENT))
 
       return WireMock.post(WireMock.urlPathEqualTo("/graphql"))
-         .withRequestBody(WireMock.equalTo(jacksonObjectMapper().writeValueAsString(pdlRequest)))
+         .withRequestBody(WireMock.equalTo(Gson().toJson(pdlRequest)))
          .withHeader(HttpHeaders.Authorization, WireMock.containing("Bearer"))
          .withHeader(NAV_CONSUMER_TOKEN, WireMock.equalTo("Bearer default"))
          .withHeader(NAV_TEMA, WireMock.equalTo(SUP))

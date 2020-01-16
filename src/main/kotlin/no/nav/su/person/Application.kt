@@ -11,11 +11,11 @@ import io.ktor.auth.jwt.JWTCredential
 import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
 import io.ktor.features.*
+import io.ktor.gson.gson
 import io.ktor.http.HttpHeaders.Authorization
 import io.ktor.http.HttpHeaders.XRequestId
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.OK
-import io.ktor.jackson.jackson
 import io.ktor.metrics.micrometer.MicrometerMetrics
 import io.ktor.request.header
 import io.ktor.response.respond
@@ -91,7 +91,9 @@ fun Application.superson(
    }
 
    install(ContentNegotiation) {
-      jackson()
+      gson {
+
+      }
    }
 
    routing {

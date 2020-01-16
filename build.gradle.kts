@@ -31,8 +31,7 @@ dependencies {
    implementation("io.ktor:ktor-auth-jwt:$ktorVersion") {
       exclude(group = "junit")
    }
-   implementation("io.ktor:ktor-jackson:$ktorVersion")
-   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:$kotlinJacksonVersion")
+   implementation("io.ktor:ktor-gson:$ktorVersion")
 
    implementation("io.ktor:ktor-metrics-micrometer:$ktorVersion")
    implementation("io.micrometer:micrometer-registry-prometheus:$micrometerRegistryPrometheusVersion")
