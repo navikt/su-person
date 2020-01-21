@@ -17,7 +17,8 @@ import io.ktor.http.HttpHeaders.XRequestId
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.metrics.micrometer.MicrometerMetrics
-import io.ktor.request.*
+import io.ktor.request.header
+import io.ktor.request.path
 import io.ktor.response.respond
 import io.ktor.routing.get
 import io.ktor.routing.routing
@@ -32,7 +33,10 @@ import io.micrometer.core.instrument.binder.system.ProcessorMetrics
 import io.micrometer.prometheus.PrometheusConfig
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import io.prometheus.client.CollectorRegistry
-import no.nav.su.person.nais.*
+import no.nav.su.person.nais.IS_ALIVE_PATH
+import no.nav.su.person.nais.IS_READY_PATH
+import no.nav.su.person.nais.METRICS_PATH
+import no.nav.su.person.nais.nais
 import no.nav.su.person.pdl.PdlConsumer
 import no.nav.su.person.sts.StsConsumer
 import org.json.JSONObject
@@ -107,10 +111,13 @@ fun Application.superson(
          }
          install(CallLogging) {
             level = Level.INFO
-            filter { call -> !call.request.path().startsWith(IS_ALIVE_PATH) }
-            filter { call -> !call.request.path().startsWith(IS_READY_PATH) }
             intercept(ApplicationCallPipeline.Monitoring) {
                MDC.put(XRequestId, call.callId)
+            }
+            filter { call ->
+               listOf(IS_ALIVE_PATH, IS_READY_PATH, METRICS_PATH).none {
+                  call.request.path().startsWith(it)
+               }
             }
          }
          get(PERSON_PATH) {
