@@ -9,9 +9,9 @@ import io.ktor.routing.get
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.exporter.common.TextFormat
 
-const val IS_ALIVE_PATH = "isalive"
-const val IS_READY_PATH = "isready"
-const val METRICS_PATH = "metrics"
+const val IS_ALIVE_PATH = "/isalive"
+const val IS_READY_PATH = "/isready"
+const val METRICS_PATH = "/metrics"
 
 fun Route.nais(collectorRegistry: CollectorRegistry) {
    get(IS_ALIVE_PATH) {
