@@ -32,7 +32,7 @@ const val SERVICEUSER__PASSWORD = "supersecret"
 
 @KtorExperimentalAPI
 fun Application.testEnv(wireMockServer: WireMockServer? = null) {
-   val baseUrl = wireMockServer?.let { it.baseUrl() } ?: ""
+   val baseUrl = wireMockServer?.baseUrl() ?: ""
    (environment.config as MapApplicationConfig).apply {
       put("integrations.sts.url", baseUrl)
       put("serviceuser.username", SERVICEUSER_USERNAME)
