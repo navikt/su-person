@@ -37,7 +37,7 @@ class PdlStub {
                }
    """.trimIndent()
 
-      val pdlUnauthorizedJson = """
+      val pdlUnauthenticatedJson = """
          {
                     "errors": [
                       {
