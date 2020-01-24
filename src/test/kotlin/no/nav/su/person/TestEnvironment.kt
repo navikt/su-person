@@ -14,6 +14,7 @@ import io.ktor.server.testing.handleRequest
 import io.ktor.util.KtorExperimentalAPI
 import io.mockk.every
 import io.mockk.mockk
+import no.nav.su.person.pdl.PDLSvarTolk
 import no.nav.su.person.pdl.PdlConsumer
 import no.nav.su.person.sts.StsConsumer
 import org.json.JSONObject
@@ -46,7 +47,7 @@ fun Application.testEnv(wireMockServer: WireMockServer? = null) {
 
 val jwtStub = JwtStub()
 @KtorExperimentalAPI
-fun Application.usingMocks(
+internal fun Application.usingMocks(
    jwkConfig: JSONObject = mockk(relaxed = true),
    jwkProvider: JwkProvider = mockk(relaxed = true),
    stsConsumer: StsConsumer = mockk(relaxed = true),
@@ -60,6 +61,9 @@ fun Application.usingMocks(
    every {
       jwkConfig.getString("issuer")
    }.returns(AZURE_ISSUER)
+   every {
+      pdlConsumer.person(any(), any())
+   }.returns(PDLSvarTolk(PdlStub.pdlHentPersonOkJson).resultat)
 
    superson(
       jwkConfig = jwkConfig,

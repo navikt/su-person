@@ -2,7 +2,6 @@ package no.nav.su.person
 
 import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
-import com.google.gson.Gson
 import io.ktor.http.HttpHeaders
 import no.nav.su.person.pdl.*
 
@@ -12,7 +11,7 @@ class PdlStub {
       val pdlRequest = PdlRequest(query, Variables(TEST_IDENT))
 
       return WireMock.post(WireMock.urlPathEqualTo("/graphql"))
-         .withRequestBody(WireMock.equalTo(Gson().toJson(pdlRequest)))
+         .withRequestBody(WireMock.equalTo(pdlRequest.toJson()))
          .withHeader(HttpHeaders.Authorization, WireMock.containing("Bearer"))
          .withHeader(NAV_CONSUMER_TOKEN, WireMock.equalTo("Bearer $STS_TOKEN"))
          .withHeader(NAV_TEMA, WireMock.equalTo(SUP))

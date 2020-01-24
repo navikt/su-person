@@ -6,8 +6,10 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.ktor.http.HttpHeaders.Authorization
 import io.ktor.http.HttpMethod.Companion.Get
 import io.ktor.http.HttpStatusCode.Companion.OK
+import io.ktor.http.HttpStatusCode.Companion.Unauthorized
 import io.ktor.server.testing.withTestApplication
 import io.ktor.util.KtorExperimentalAPI
+import org.json.JSONObject
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
@@ -53,10 +55,24 @@ internal class PersonComponentTest {
          }
       }.apply {
          assertEquals(OK, response.status())
-         assertEquals(validPersonString, response.content!!)
+         val person = JSONObject(response.content!!)
+         assertEquals("OLA", person.getString("fornavn"))
+         assertEquals("NORMANN", person.getString("etternavn"))
       }
    }
 
+   @Test
+   fun `hent person med feil fra PDL`() {
+      withTestApplication({
+         testEnv(wireMockServer)
+         superson()
+      }) {
+         WireMock.stubFor(pdlStub.hentPerson(PdlStub.pdlUnauthenticatedJson))
+         withCallId(Get, "$PERSON_PATH?ident=$TEST_IDENT") {
+            addHeader(Authorization, "Bearer ${jwtStub.createTokenFor()}")
+         }
+      }.apply {
+         assertEquals(Unauthorized, response.status())
+      }
+   }
 }
-
-val validPersonString = """{"navn":[{"fornavn":"OLA","etternavn":"NORMANN"}]}"""

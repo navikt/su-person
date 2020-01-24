@@ -8,11 +8,13 @@ import io.mockk.every
 import io.mockk.mockk
 import no.nav.su.person.PdlStub
 import no.nav.su.person.PdlStub.Companion.pdlHentPersonOkJson
-import no.nav.su.person.PdlStub.Companion.pdlUnauthenticatedJson
 import no.nav.su.person.STS_TOKEN
 import no.nav.su.person.TEST_IDENT
 import no.nav.su.person.sts.StsConsumer
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
 internal class PdlConsumerTest {
@@ -20,15 +22,9 @@ internal class PdlConsumerTest {
    @Test
    fun `should get Person from PDL`() {
       stubFor(pdlStub.hentPerson(pdlHentPersonOkJson))
-      val pdlPerson = pdlConsumer().person(TEST_IDENT, "Bearer token").navn[0]
+      val pdlPerson = pdlConsumer().person(TEST_IDENT, "Bearer token") as PersonFraPDL
       assertEquals("OLA", pdlPerson.fornavn)
       assertEquals("NORMANN", pdlPerson.etternavn)
-   }
-
-   @Test
-   fun `should throw exception when error from PDL`() {
-      stubFor(pdlStub.hentPerson(pdlUnauthenticatedJson))
-      assertThrows<RuntimeException> { pdlConsumer().person(TEST_IDENT, "Bearer token") }
    }
 
    private fun pdlConsumer() = PdlConsumer(wireMockServer.baseUrl(), configureStsMock())

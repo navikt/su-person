@@ -12,7 +12,7 @@ import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
 import io.ktor.features.*
 import io.ktor.gson.gson
-import io.ktor.http.HttpHeaders.Authorization
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpHeaders.XRequestId
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.OK
@@ -37,7 +37,9 @@ import no.nav.su.person.nais.IS_ALIVE_PATH
 import no.nav.su.person.nais.IS_READY_PATH
 import no.nav.su.person.nais.METRICS_PATH
 import no.nav.su.person.nais.nais
+import no.nav.su.person.pdl.FeilFraPDL
 import no.nav.su.person.pdl.PdlConsumer
+import no.nav.su.person.pdl.PersonFraPDL
 import no.nav.su.person.sts.StsConsumer
 import org.json.JSONObject
 import org.slf4j.Logger
@@ -52,7 +54,7 @@ const val identParamName = "ident"
 private val sikkerLogg = LoggerFactory.getLogger("sikkerLogg")
 
 @KtorExperimentalAPI
-fun Application.superson(
+internal fun Application.superson(
    jwkConfig: JSONObject = getJWKConfig(fromEnvironment("azure.wellKnownUrl")),
    jwkProvider: JwkProvider = JwkProviderBuilder(URL(jwkConfig.getString("jwks_uri"))).build(),
    stsConsumer: StsConsumer = StsConsumer(fromEnvironment("integrations.sts.url"), fromEnvironment("serviceuser.username"), fromEnvironment("serviceuser.password")),
@@ -124,8 +126,11 @@ fun Application.superson(
             call.parameters[identParamName]?.let { personIdent ->
                val principal = (call.authentication.principal as JWTPrincipal).payload
                sikkerLogg.info("${principal.subject} gjør oppslag på person $personIdent")
-               call.respond(OK, pdlConsumer.person(call.parameters[identParamName]!!, call.request.header(Authorization)!!)!!)
-            } ?: call.respond(HttpStatusCode.BadRequest, "query param '${identParamName}' må oppgis")
+               when(val svar = pdlConsumer.person(call.parameters[identParamName]!!, call.request.header(HttpHeaders.Authorization)!!)){
+                  is PersonFraPDL -> call.respond(OK, svar.toJson())
+                  is FeilFraPDL -> call.respond(HttpStatusCode.fromValue(svar.httpCode), "Kan ikke hente person")
+               }
+            } ?: call.respond(HttpStatusCode.BadRequest, "query param '$identParamName' må oppgis")
          }
       }
       nais(collectorRegistry)

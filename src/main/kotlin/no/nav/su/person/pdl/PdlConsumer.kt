@@ -1,8 +1,6 @@
 package no.nav.su.person.pdl
 
-import com.github.kittinunf.fuel.gson.responseObject
 import com.github.kittinunf.fuel.httpPost
-import com.google.gson.Gson
 import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpHeaders.Accept
 import io.ktor.http.HttpHeaders.Authorization
@@ -13,12 +11,8 @@ const val NAV_CONSUMER_TOKEN = "Nav-Consumer-Token"
 const val NAV_TEMA = "Tema"
 const val SUP = "SUP"
 
-class PdlConsumer(private val pdlUrl: String, private val systembruker: StsConsumer) {
-   companion object {
-      private val gson = Gson()
-   }
-
-   fun person(ident: String, autorisertSaksbehandler: String): PdlPerson {
+internal class PdlConsumer(private val pdlUrl: String, private val systembruker: StsConsumer) {
+   internal fun person(ident: String, autorisertSaksbehandler: String): TolketSvar {
 
       val query = this::class.java.getResource("/hentPerson.graphql").readText()
       val pdlRequest = PdlRequest(query, Variables(ident = ident))
@@ -29,12 +23,9 @@ class PdlConsumer(private val pdlUrl: String, private val systembruker: StsConsu
          .header(NAV_TEMA, SUP)
          .header(Accept, Json)
          .header(ContentType, Json)
-         .body(gson.toJson(pdlRequest))
-         .responseObject<PdlResponse<PdlHentPerson>>()
+         .body(pdlRequest.toJson())
+         .responseString()
 
-      result.get().errors?.let {
-         throw RuntimeException("Exception while getting person from PDL: $it")
-      }
-      return result.get().data!!.hentPerson!!
+      return PDLSvarTolk(result.get()).resultat
    }
 }

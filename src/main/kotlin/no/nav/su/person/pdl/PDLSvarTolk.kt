@@ -19,6 +19,13 @@ internal sealed class TolketSvar
 internal class PersonFraPDL(person: JSONObject) : TolketSvar() {
    val fornavn: String = person.getJSONArray("navn").getJSONObject(0).getString("fornavn")
    val etternavn: String = person.getJSONArray("navn").getJSONObject(0).getString("etternavn")
+
+   fun toJson(): String = """
+      {
+         "fornavn": "$fornavn",
+         "etternavn": "$etternavn"
+      }
+   """.trimIndent()
 }
 
 internal class FeilFraPDL(error: JSONObject) : TolketSvar() {
