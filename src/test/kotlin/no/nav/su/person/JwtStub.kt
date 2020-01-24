@@ -65,7 +65,7 @@ class JwtStub(private val wireMockServer: WireMockServer? = null) {
       )
    )
 
-   fun stubbedConfigProvider() = WireMock.get(WireMock.urlPathEqualTo("/wellknown")).willReturn(
+   fun stubbedConfigProvider() = WireMock.get(WireMock.urlPathEqualTo(AZURE_WELL_KNOWN_URL)).willReturn(
       WireMock.okJson(
          """
 {

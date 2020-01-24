@@ -1,26 +1,29 @@
 package no.nav.su.person
 
+import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
+import com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo
 
-class StsStub {
-   fun validStsToken(): MappingBuilder = WireMock.get(WireMock.urlPathEqualTo("/rest/v1/sts/token"))
+const val STS_TOKEN = "ET_LANGT_TOKEN"
+
+class StsStub() {
+
+   fun stubbedSTS() = WireMock.get(urlPathEqualTo("/rest/v1/sts/token"))
+      .withBasicAuth(SERVICEUSER_USERNAME, SERVICEUSER__PASSWORD)
+      .withHeader("Accept", equalTo("application/json"))
       .withQueryParam("grant_type", equalTo("client_credentials"))
       .withQueryParam("scope", equalTo("openid"))
-      .withBasicAuth(SRV_SUPSTONAD, SRV_SUPSTONAD_PWD)
-      .withHeader("Accept", equalTo("application/json"))
       .willReturn(
-         WireMock.okJson(defaultStsToken)
+         WireMock.okJson(
+            """
+{
+    "access_token": "$STS_TOKEN",
+    "expires_in": "3600"
+}
+""".trimIndent()
+         )
       )
 
-   val defaultStsToken = """
-      {
-        "access_token": "default",
-        "token_type": "Bearer",
-        "expires_in": 3600
-      }
-   """
 }
-
-

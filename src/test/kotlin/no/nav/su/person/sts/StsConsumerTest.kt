@@ -1,19 +1,20 @@
 package no.nav.su.person.sts
 
 import com.github.tomakehurst.wiremock.WireMockServer
+import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.ok
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import com.github.tomakehurst.wiremock.stubbing.Scenario.STARTED
-import no.nav.su.person.SRV_SUPSTONAD
-import no.nav.su.person.SRV_SUPSTONAD_PWD
-import no.nav.su.person.StsStub
-import org.junit.jupiter.api.*
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotEquals
+import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
 
-internal class StsConsumerTest {
+internal class STSTest {
 
    @Test
    fun `should deserialize to Token instance`() {
@@ -22,23 +23,17 @@ internal class StsConsumerTest {
    }
 
    @Test
-   fun `throws exception unable to get token`() {
-      stubFor(WireMock.get(WireMock.urlPathEqualTo("/rest/v1/sts/token")).willReturn(WireMock.badRequest()))
-      assertThrows<RuntimeException> {
-         stsClient().token()
-      }
-   }
-
-   @Test
    fun `should get new token when expired`() {
-      stubFor(stsStub.validStsToken().willReturn(ok(shortLivedStsToken))
-         .inScenario("token expiry")
-         .whenScenarioStateIs(STARTED)
-         .willSetStateTo("token expired"))
+      stubFor(
+         stsStub.validStsToken().willReturn(ok(shortLivedStsToken))
+            .inScenario("token expiry")
+            .whenScenarioStateIs(STARTED)
+            .willSetStateTo("token expired"))
 
-      stubFor(stsStub.validStsToken()
-         .inScenario("token expiry")
-         .whenScenarioStateIs("token expired"))
+      stubFor(
+         stsStub.validStsToken()
+            .inScenario("token expiry")
+            .whenScenarioStateIs("token expired"))
 
       val client = stsClient()
       val shortlived = client.token()
@@ -47,11 +42,11 @@ internal class StsConsumerTest {
       assertEquals("default", default)
    }
 
-   private fun stsClient() = StsConsumer(wireMockServer.baseUrl(), SRV_SUPSTONAD, SRV_SUPSTONAD_PWD)
+   private fun stsClient() = StsConsumer(wireMockServer.baseUrl(), "SRV_SUPSTONAD", "SRV_SUPSTONAD_PWD")
 
    companion object {
       val wireMockServer: WireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
-      private val stsStub by lazy { StsStub() }
+      private val stsStub by lazy { StsStub2() }
 
       @BeforeAll
       @JvmStatic
@@ -77,4 +72,23 @@ private val shortLivedStsToken = """{
   "token_type": "Bearer",
   "expires_in": 5
 }""".trimIndent()
+
+class StsStub2 {
+   fun validStsToken(): MappingBuilder = WireMock.get(WireMock.urlPathEqualTo("/rest/v1/sts/token"))
+      .withQueryParam("grant_type", WireMock.equalTo("client_credentials"))
+      .withQueryParam("scope", WireMock.equalTo("openid"))
+      .withBasicAuth("SRV_SUPSTONAD", "SRV_SUPSTONAD_PWD")
+      .withHeader("Accept", WireMock.equalTo("application/json"))
+      .willReturn(
+         WireMock.okJson(defaultStsToken)
+      )
+
+   val defaultStsToken = """
+      {
+        "access_token": "default",
+        "token_type": "Bearer",
+        "expires_in": 3600
+      }
+   """
+}
 

@@ -15,13 +15,13 @@ private fun String.tolk(): TolketSvar {
    }
 }
 
-internal sealed class TolketSvar(json: JSONObject)
-internal class PersonFraPDL(person: JSONObject) : TolketSvar(person) {
+internal sealed class TolketSvar
+internal class PersonFraPDL(person: JSONObject) : TolketSvar() {
    val fornavn: String = person.getJSONArray("navn").getJSONObject(0).getString("fornavn")
    val etternavn: String = person.getJSONArray("navn").getJSONObject(0).getString("etternavn")
 }
 
-internal class FeilFraPDL(error: JSONObject) : TolketSvar(error) {
+internal class FeilFraPDL(error: JSONObject) : TolketSvar() {
    val httpCode: Int = error.getJSONObject("extensions").getString("code").httpKode
 }
 

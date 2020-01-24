@@ -126,7 +126,6 @@ fun Application.superson(
                sikkerLogg.info("${principal.subject} gjør oppslag på person $personIdent")
                call.respond(OK, pdlConsumer.person(call.parameters[identParamName]!!, call.request.header(Authorization)!!)!!)
             } ?: call.respond(HttpStatusCode.BadRequest, "query param '${identParamName}' må oppgis")
-
          }
       }
       nais(collectorRegistry)

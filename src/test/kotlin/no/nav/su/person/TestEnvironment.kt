@@ -23,20 +23,20 @@ const val TEST_IDENT = "12345678910"
 const val AZURE_ISSUER = "azure"
 const val AZURE_REQUIRED_GROUP = "su-gruppa"
 const val AZURE_CLIENT_ID = "clientId"
-const val AZURE_WELL_KNOWN_URL = "/.well-known"
-const val SRV_SUPSTONAD = "srv-supstonad"
-const val SRV_SUPSTONAD_PWD = "srv-supstonad-pwd"
+const val AZURE_WELL_KNOWN_URL = "/well-known"
 const val SUBJECT = "enSaksbehandler"
 const val DEFAULT_CALL_ID = "callId"
-const val STS_URL = "/sts"
-const val PDL_URL = "/pdl"
+const val SERVICEUSER_USERNAME = "srvsupstonad"
+const val SERVICEUSER__PASSWORD = "supersecret"
 
 @KtorExperimentalAPI
 fun Application.testEnv(wireMockServer: WireMockServer? = null) {
    val baseUrl = wireMockServer?.let { it.baseUrl() } ?: ""
    (environment.config as MapApplicationConfig).apply {
-      put("integrations.sts.url", "$baseUrl$STS_URL")
-      put("integrations.pdl.url", "$baseUrl$PDL_URL")
+      put("integrations.sts.url", baseUrl)
+      put("serviceuser.username", SERVICEUSER_USERNAME)
+      put("serviceuser.password", SERVICEUSER__PASSWORD)
+      put("integrations.pdl.url", baseUrl)
       put("azure.requiredGroup", AZURE_REQUIRED_GROUP)
       put("azure.clientId", AZURE_CLIENT_ID)
       put("azure.wellKnownUrl", "$baseUrl$AZURE_WELL_KNOWN_URL")
