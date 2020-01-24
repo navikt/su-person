@@ -9,6 +9,7 @@ import io.mockk.mockk
 import no.nav.su.person.PdlStub
 import no.nav.su.person.PdlStub.Companion.pdlHentPersonOkJson
 import no.nav.su.person.PdlStub.Companion.pdlUnauthenticatedJson
+import no.nav.su.person.STS_TOKEN
 import no.nav.su.person.TEST_IDENT
 import no.nav.su.person.sts.StsConsumer
 import org.junit.jupiter.api.*
@@ -36,7 +37,7 @@ internal class PdlConsumerTest {
       val stsMock = mockk<StsConsumer>()
       every {
          stsMock.token()
-      }.returns("default")
+      }.returns(STS_TOKEN)
       return stsMock
    }
 

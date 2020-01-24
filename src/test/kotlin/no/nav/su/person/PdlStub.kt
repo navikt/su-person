@@ -14,7 +14,7 @@ class PdlStub {
       return WireMock.post(WireMock.urlPathEqualTo("/graphql"))
          .withRequestBody(WireMock.equalTo(Gson().toJson(pdlRequest)))
          .withHeader(HttpHeaders.Authorization, WireMock.containing("Bearer"))
-         .withHeader(NAV_CONSUMER_TOKEN, WireMock.containing("Bearer"))
+         .withHeader(NAV_CONSUMER_TOKEN, WireMock.equalTo("Bearer $STS_TOKEN"))
          .withHeader(NAV_TEMA, WireMock.equalTo(SUP))
          .withHeader(HttpHeaders.Accept, WireMock.equalTo("application/json"))
          .withHeader(HttpHeaders.ContentType, WireMock.equalTo("application/json"))
