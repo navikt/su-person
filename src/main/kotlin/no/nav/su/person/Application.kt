@@ -11,7 +11,6 @@ import io.ktor.auth.jwt.JWTCredential
 import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
 import io.ktor.features.*
-import io.ktor.gson.gson
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpHeaders.XRequestId
 import io.ktor.http.HttpStatusCode
@@ -94,12 +93,6 @@ internal fun Application.superson(
          JvmThreadMetrics(),
          LogbackMetrics()
       )
-   }
-
-   install(ContentNegotiation) {
-      gson {
-
-      }
    }
 
    routing {
