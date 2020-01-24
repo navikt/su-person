@@ -53,9 +53,10 @@ internal class PersonComponentTest {
          }
       }.apply {
          assertEquals(OK, response.status())
+         assertEquals(validPersonString, response.content!!)
       }
    }
 
 }
 
-
+val validPersonString = """{"navn":[{"fornavn":"OLA","etternavn":"NORMANN"}]}"""
