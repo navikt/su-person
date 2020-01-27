@@ -18,32 +18,6 @@ import kotlin.test.assertEquals
 @KtorExperimentalAPI
 internal class PersonComponentTest {
 
-   companion object {
-      private val wireMockServer: WireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
-      private val jwtStub by lazy {
-         JwtStub(wireMockServer)
-      }
-      private val stsStub = StsStub()
-      private val pdlStub = PdlStub()
-
-
-      @BeforeAll
-      @JvmStatic
-      fun start() {
-         wireMockServer.start()
-         WireMock.stubFor(jwtStub.stubbedJwkProvider())
-         WireMock.stubFor(jwtStub.stubbedConfigProvider())
-         WireMock.stubFor(stsStub.stubbedSTS())
-         WireMock.stubFor(pdlStub.hentPerson(PdlStub.pdlHentPersonOkJson))
-      }
-
-      @AfterAll
-      @JvmStatic
-      fun stop() {
-         wireMockServer.stop()
-      }
-   }
-
    @Test
    fun `hent person ok med gyldig token`() {
       withTestApplication({
@@ -73,6 +47,32 @@ internal class PersonComponentTest {
          }
       }.apply {
          assertEquals(Unauthorized, response.status())
+      }
+   }
+
+   companion object {
+      private val wireMockServer: WireMockServer = WireMockServer(WireMockConfiguration.options().dynamicPort())
+      private val jwtStub by lazy {
+         JwtStub(wireMockServer)
+      }
+      private val stsStub = StsStub()
+      private val pdlStub = PdlStub()
+
+
+      @BeforeAll
+      @JvmStatic
+      fun start() {
+         wireMockServer.start()
+         WireMock.stubFor(jwtStub.stubbedJwkProvider())
+         WireMock.stubFor(jwtStub.stubbedConfigProvider())
+         WireMock.stubFor(stsStub.stubbedSTS())
+         WireMock.stubFor(pdlStub.hentPerson(PdlStub.pdlHentPersonOkJson))
+      }
+
+      @AfterAll
+      @JvmStatic
+      fun stop() {
+         wireMockServer.stop()
       }
    }
 }

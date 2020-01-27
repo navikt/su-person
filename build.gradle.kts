@@ -23,6 +23,7 @@ dependencies {
    implementation("io.ktor:ktor-server-netty:$ktorVersion")
    implementation("com.github.kittinunf.fuel:fuel:$fuelVersion")
    implementation("org.json:json:$orgJsonVersion")
+   implementation("io.ktor:ktor-gson:$ktorVersion")
 
    implementation("ch.qos.logback:logback-classic:1.2.3")
    implementation("net.logstash.logback:logstash-logback-encoder:5.2")
