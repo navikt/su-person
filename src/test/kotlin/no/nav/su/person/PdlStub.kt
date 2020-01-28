@@ -3,14 +3,21 @@ package no.nav.su.person
 import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
 import io.ktor.http.HttpHeaders
-import no.nav.su.person.pdl.*
+import io.ktor.http.HttpStatusCode
+import no.nav.su.person.pdl.NAV_CONSUMER_TOKEN
+import no.nav.su.person.pdl.NAV_TEMA
+import no.nav.su.person.pdl.SUP
 
 private val validGraphQlJson = """{"query":"query(${'$'}ident: ID!, ${'$'}navnHistorikk: Boolean!){\n   hentPerson(ident: ${'$'}ident) {\n      navn(historikk: ${'$'}navnHistorikk) {\n         fornavn\n         mellomnavn\n         etternavn\n         metadata {\n            master\n         }\n      }\n   }\n}\n","variables":{"ident":"12345678910","navnHistorikk":false}}"""
 
 class PdlStub {
+   fun httpError(httpCode: HttpStatusCode, message: String): MappingBuilder {
+      return WireMock.post(WireMock.urlPathEqualTo("/graphql"))
+         .willReturn(WireMock.aResponse().withBody(message).withStatus(httpCode.value))
+   }
+
    fun hentPerson(json: String): MappingBuilder {
       val query = this::class.java.getResource("/hentPerson.graphql").readText()
-      val pdlRequest = PdlRequest(query, Variables(TEST_IDENT))
 
       return WireMock.post(WireMock.urlPathEqualTo("/graphql"))
          .withRequestBody(WireMock.equalTo(validGraphQlJson))

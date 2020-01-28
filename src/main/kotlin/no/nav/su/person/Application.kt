@@ -10,11 +10,15 @@ import io.ktor.auth.authentication
 import io.ktor.auth.jwt.JWTCredential
 import io.ktor.auth.jwt.JWTPrincipal
 import io.ktor.auth.jwt.jwt
-import io.ktor.features.*
+import io.ktor.features.CallId
+import io.ktor.features.CallLogging
+import io.ktor.features.RejectedCallIdException
+import io.ktor.features.callId
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpHeaders.XRequestId
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.OK
+import io.ktor.http.HttpStatusCode.Companion.fromValue
 import io.ktor.metrics.micrometer.MicrometerMetrics
 import io.ktor.request.header
 import io.ktor.request.path
@@ -119,9 +123,10 @@ internal fun Application.superson(
             call.parameters[identParamName]?.let { personIdent ->
                val principal = (call.authentication.principal as JWTPrincipal).payload
                sikkerLogg.info("${principal.subject} gjør oppslag på person $personIdent")
-               when(val svar = pdlConsumer.person(call.parameters[identParamName]!!, call.request.header(HttpHeaders.Authorization)!!)){
+               when (val svar = pdlConsumer.person(call.parameters[identParamName]!!, call.request.header(HttpHeaders.Authorization)!!)) {
                   is PersonFraPDL -> call.respond(OK, svar.toJson())
-                  is FeilFraPDL -> call.respond(HttpStatusCode.fromValue(svar.httpCode), "Kan ikke hente person")
+                  is FeilFraPDL -> call.respond(fromValue(svar.httpCode), "Kan ikke hente person")
+                  is Feil -> call.respond(fromValue(svar.httpCode), svar.message)
                }
             } ?: call.respond(HttpStatusCode.BadRequest, "query param '$identParamName' må oppgis")
          }
