@@ -29,4 +29,37 @@ class PDLSvarTolkTest {
          }
       }
    }
+
+   @Test
+   fun `velg person med master FREG hvis eksisterer`() {
+      val svar: PersonFraPDL = PDLSvarTolk(PdlStub.pdlHentPersonOkJson).resultat as PersonFraPDL
+      assertEquals("OLA", svar.fornavn)
+      assertEquals("OTTO", svar.mellomnavn)
+      assertEquals("NORMANN", svar.etternavn)
+   }
+
+   @Test
+   fun `velg person med master PDL hvis FREG ikke eksisterer`() {
+      val svar: PersonFraPDL = PDLSvarTolk("""
+      {
+                 "data": {
+                   "hentPerson": {
+                     "navn": [
+                       {
+                         "fornavn": "ALO",
+                         "mellomnavn": "OTTO",
+                         "etternavn": "NNAMRON",
+                         "metadata": {
+                           "master": "PDL"
+                           }
+                        }
+                     ]
+                   }
+                 }
+               }
+   """.trimIndent()).resultat as PersonFraPDL
+      assertEquals("ALO", svar.fornavn)
+      assertEquals("OTTO", svar.mellomnavn)
+      assertEquals("NNAMRON", svar.etternavn)
+   }
 }

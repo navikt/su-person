@@ -1,8 +1,12 @@
 query($ident: ID!, $navnHistorikk: Boolean!){
-  hentPerson(ident: $ident) {
-  	navn(historikk: $navnHistorikk) {
-  	  fornavn
-  	  etternavn
-    }
-  }
+   hentPerson(ident: $ident) {
+      navn(historikk: $navnHistorikk) {
+         fornavn
+         mellomnavn
+         etternavn
+         metadata {
+            master
+         }
+      }
+   }
 }

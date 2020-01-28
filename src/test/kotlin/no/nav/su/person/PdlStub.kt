@@ -5,7 +5,7 @@ import com.github.tomakehurst.wiremock.client.WireMock
 import io.ktor.http.HttpHeaders
 import no.nav.su.person.pdl.*
 
-private val validGraphQlJson = """{"query":"query(${'$'}ident: ID!, ${'$'}navnHistorikk: Boolean!){\n  hentPerson(ident: ${'$'}ident) {\n  \tnavn(historikk: ${'$'}navnHistorikk) {\n  \t  fornavn\n  \t  etternavn\n    }\n  }\n}\n","variables":{"ident":"12345678910","navnHistorikk":false}}"""
+private val validGraphQlJson = """{"query":"query(${'$'}ident: ID!, ${'$'}navnHistorikk: Boolean!){\n   hentPerson(ident: ${'$'}ident) {\n      navn(historikk: ${'$'}navnHistorikk) {\n         fornavn\n         mellomnavn\n         etternavn\n         metadata {\n            master\n         }\n      }\n   }\n}\n","variables":{"ident":"12345678910","navnHistorikk":false}}"""
 
 class PdlStub {
    fun hentPerson(json: String): MappingBuilder {
@@ -30,8 +30,20 @@ class PdlStub {
                      "navn": [
                        {
                          "fornavn": "OLA",
-                         "etternavn": "NORMANN"
-                       }
+                         "mellomnavn": "OTTO",
+                         "etternavn": "NORMANN",
+                         "metadata": {
+                           "master": "FREG"
+                           }
+                       },
+                       {
+                         "fornavn": "ALO",
+                         "mellomnavn": "OTTO",
+                         "etternavn": "NNAMRON",
+                         "metadata": {
+                           "master": "PDL"
+                           }
+                        }
                      ]
                    }
                  }
