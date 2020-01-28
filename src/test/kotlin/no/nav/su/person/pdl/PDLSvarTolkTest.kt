@@ -88,4 +88,37 @@ class PDLSvarTolkTest {
       assertEquals("", svar.mellomnavn)
       assertEquals("NNAMRON", svar.etternavn)
    }
+
+   @Test
+   fun `ignorerer case når sammenligner datakilde for person (FREG vs Freg etc)`() {
+      val svar: PersonFraPDL = PDLSvarTolk("""
+      {
+                 "data": {
+                   "hentPerson": {
+                     "navn": [
+                        {
+                         "fornavn": "DONT",
+                         "mellomnavn": PICK,
+                         "etternavn": "THIS",
+                         "metadata": {
+                           "master": "PDL"
+                           }
+                        },
+                       {
+                         "fornavn": "PICK",
+                         "mellomnavn": null,
+                         "etternavn": "ME",
+                         "metadata": {
+                           "master": "FrEg"
+                           }
+                        }
+                     ]
+                   }
+                 }
+               }
+   """.trimIndent()).resultat as PersonFraPDL
+
+      assertEquals("PICK", svar.fornavn)
+      assertEquals("ME", svar.etternavn)
+   }
 }

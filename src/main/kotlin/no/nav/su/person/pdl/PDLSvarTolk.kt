@@ -44,7 +44,7 @@ internal class PersonFraPDL(person: JSONObject) : TolketSvar() {
       val iterator = this.iterator()
       while (iterator.hasNext()) {
          val jsonObject = iterator.next() as JSONObject
-         if (jsonObject.getJSONObject("metadata").getString("master") == kilde) {
+         if (jsonObject.getJSONObject("metadata").getString("master").equals(kilde, ignoreCase = true)) {
             return jsonObject
          }
       }
