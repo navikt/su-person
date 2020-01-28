@@ -37,7 +37,6 @@ internal class PdlConsumer(private val pdlUrl: String, private val systembruker:
       return result.fold(
          { PDLSvarTolk(it).resultat },
          {
-
             val errorMessage = it.response.body().asString(Json.toString())
             val statusCode = it.response.statusCode
             LOG.debug("Kall mot PDL feilet, statuskode: $statusCode, feilmelding: $errorMessage");

@@ -1,7 +1,6 @@
 package no.nav.su.person
 
 import com.github.tomakehurst.wiremock.WireMockServer
-import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration
 import io.ktor.http.HttpHeaders.Authorization
@@ -26,7 +25,7 @@ internal class PersonComponentTest {
          testEnv(wireMockServer)
          superson()
       }) {
-         WireMock.stubFor(pdlStub.hentPerson(PdlStub.pdlHentPersonOkJson))
+         stubFor(pdlStub.hentPerson(PdlStub.pdlHentPersonOkJson))
          withCallId(Get, "$PERSON_PATH?ident=$TEST_IDENT") {
             addHeader(Authorization, "Bearer ${jwtStub.createTokenFor()}")
          }
@@ -44,7 +43,7 @@ internal class PersonComponentTest {
          testEnv(wireMockServer)
          superson()
       }) {
-         WireMock.stubFor(pdlStub.hentPerson(PdlStub.pdlUnauthenticatedJson))
+         stubFor(pdlStub.hentPerson(PdlStub.pdlUnauthenticatedJson))
          withCallId(Get, "$PERSON_PATH?ident=$TEST_IDENT") {
             addHeader(Authorization, "Bearer ${jwtStub.createTokenFor()}")
          }
@@ -82,9 +81,9 @@ internal class PersonComponentTest {
       @JvmStatic
       fun start() {
          wireMockServer.start()
-         WireMock.stubFor(jwtStub.stubbedJwkProvider())
-         WireMock.stubFor(jwtStub.stubbedConfigProvider())
-         WireMock.stubFor(stsStub.stubbedSTS())
+         stubFor(jwtStub.stubbedJwkProvider())
+         stubFor(jwtStub.stubbedConfigProvider())
+         stubFor(stsStub.stubbedSTS())
       }
 
       @AfterAll

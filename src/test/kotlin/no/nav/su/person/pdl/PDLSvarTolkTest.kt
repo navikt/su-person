@@ -62,4 +62,30 @@ class PDLSvarTolkTest {
       assertEquals("OTTO", svar.mellomnavn)
       assertEquals("NNAMRON", svar.etternavn)
    }
+
+   @Test
+   fun `håndterer valgfrie returverdier`() {
+      val svar: PersonFraPDL = PDLSvarTolk("""
+      {
+                 "data": {
+                   "hentPerson": {
+                     "navn": [
+                       {
+                         "fornavn": "ALO",
+                         "mellomnavn": null,
+                         "etternavn": "NNAMRON",
+                         "metadata": {
+                           "master": "PDL"
+                           }
+                        }
+                     ]
+                   }
+                 }
+               }
+   """.trimIndent()).resultat as PersonFraPDL
+
+      assertEquals("ALO", svar.fornavn)
+      assertEquals("", svar.mellomnavn)
+      assertEquals("NNAMRON", svar.etternavn)
+   }
 }

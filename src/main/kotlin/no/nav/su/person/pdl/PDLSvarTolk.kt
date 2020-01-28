@@ -2,6 +2,7 @@ package no.nav.su.person.pdl
 
 import org.json.JSONArray
 import org.json.JSONObject
+import org.slf4j.LoggerFactory
 
 internal class PDLSvarTolk(pdlData: String) {
    val resultat: TolketSvar = pdlData.tolk()
@@ -18,11 +19,17 @@ private fun String.tolk(): TolketSvar {
 
 internal sealed class TolketSvar
 internal class PersonFraPDL(person: JSONObject) : TolketSvar() {
-   val personJson: JSONArray = person.getJSONArray("navn")
-   val navnData = (personJson.navn() ?: personJson.navn("PDL"))!!
+   companion object {
+      private val LOG = LoggerFactory.getLogger(PersonFraPDL::class.java)
+   }
+
+   val personJson = person.getJSONArray("navn")
+   val navnData = (personJson.navn() ?: personJson.navn("PDL")) ?: personJson.optJSONObject(0).also {
+      LOG.warn("Fant ikke navn med kilde FREG eller PDL. Metadatablokk: ${it.optJSONObject("metadata")}")
+   }
 
    val fornavn: String = navnData.getString("fornavn")
-   val mellomnavn: String = navnData.getString("mellomnavn")
+   val mellomnavn: String = navnData.optString("mellomnavn") ?: ""
    val etternavn: String = navnData.getString("etternavn")
 
    fun toJson(): String = """
