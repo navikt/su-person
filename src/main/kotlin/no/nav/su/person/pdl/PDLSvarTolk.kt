@@ -1,8 +1,6 @@
 package no.nav.su.person.pdl
 
-import org.json.JSONArray
 import org.json.JSONObject
-import org.slf4j.LoggerFactory
 
 internal class PDLSvarTolk(pdlData: String) {
    val resultat: TolketSvar = pdlData.tolk()
@@ -19,18 +17,15 @@ private fun String.tolk(): TolketSvar {
 
 internal sealed class TolketSvar
 internal class PersonFraPDL(person: JSONObject) : TolketSvar() {
-   companion object {
-      private val LOG = LoggerFactory.getLogger(PersonFraPDL::class.java)
+   private val alleNavn = person.getJSONArray("navn").map {
+      PDLNavn(it as JSONObject)
    }
+   private val navnData: PDLNavn =
+      alleNavn.find { it.kildeComparable == "FREG" } ?: alleNavn.find { it.kildeComparable == "PDL" } ?: alleNavn.first()
 
-   val personJson = person.getJSONArray("navn")
-   val navnData = (personJson.navn() ?: personJson.navn("PDL")) ?: personJson.optJSONObject(0).also {
-      LOG.warn("Fant ikke navn med kilde FREG eller PDL. Metadatablokk: ${it.optJSONObject("metadata")}")
-   }
-
-   val fornavn: String = navnData.getString("fornavn")
-   val mellomnavn: String = navnData.optString("mellomnavn") ?: ""
-   val etternavn: String = navnData.getString("etternavn")
+   val fornavn: String = navnData.fornavn
+   val mellomnavn: String = navnData.mellomnavn
+   val etternavn: String = navnData.etternavn
 
    fun toJson(): String = """
       {
@@ -39,17 +34,14 @@ internal class PersonFraPDL(person: JSONObject) : TolketSvar() {
          "etternavn": "$etternavn"
       }
    """.trimIndent()
+}
 
-   fun JSONArray.navn(kilde: String = "FREG"): JSONObject? {
-      val iterator = this.iterator()
-      while (iterator.hasNext()) {
-         val jsonObject = iterator.next() as JSONObject
-         if (jsonObject.getJSONObject("metadata").getString("master").equals(kilde, ignoreCase = true)) {
-            return jsonObject
-         }
-      }
-      return null
-   }
+private class PDLNavn(source: JSONObject) {
+   val fornavn: String = source.getString("fornavn")
+   val mellomnavn: String = source.optString("mellomnavn") ?: ""
+   val etternavn: String = source.getString("etternavn")
+   val kilde: String = source.getJSONObject("metadata").getString("master")
+   val kildeComparable = kilde.toUpperCase()
 }
 
 internal class FeilFraPDL(error: JSONObject) : TolketSvar() {
