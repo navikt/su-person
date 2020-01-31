@@ -4,14 +4,16 @@ import com.github.kittinunf.fuel.core.extensions.authentication
 import com.github.kittinunf.fuel.httpGet
 import io.ktor.http.ContentType.Application.Json
 import io.ktor.http.HttpHeaders.Accept
+import no.nav.su.person.pdl.TokenProvider
 import no.nav.su.person.sts.StsToken.Companion.isValid
 import org.json.JSONObject
 import java.time.LocalDateTime
 
-class StsConsumer(private val baseUrl: String, private val username: String, private val password: String) {
+class StsConsumer(private val baseUrl: String, private val username: String, private val password: String):
+   TokenProvider {
    private var stsToken: StsToken? = null
 
-   fun token(): String {
+   override fun token(): String {
       if (!isValid(stsToken)) {
          val (_, _, result) = "$baseUrl/rest/v1/sts/token?grant_type=client_credentials&scope=openid".httpGet()
             .authentication().basic(username, password)

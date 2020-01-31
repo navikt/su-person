@@ -14,7 +14,7 @@ const val NAV_CONSUMER_TOKEN = "Nav-Consumer-Token"
 const val NAV_TEMA = "Tema"
 const val SUP = "SUP"
 
-internal class PdlConsumer(private val pdlUrl: String, private val systembruker: StsConsumer) {
+internal class PdlConsumer(private val pdlUrl: String, private val systembruker: TokenProvider) {
    companion object {
       //Graphql is picky about json, this will format and escape the json string correctly
       private val gson = Gson()
@@ -44,4 +44,8 @@ internal class PdlConsumer(private val pdlUrl: String, private val systembruker:
          }
       )
    }
+}
+
+internal interface TokenProvider {
+   fun token(): String
 }
