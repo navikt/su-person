@@ -43,6 +43,7 @@ import no.nav.su.person.nais.nais
 import no.nav.su.person.pdl.FeilFraPDL
 import no.nav.su.person.pdl.PdlConsumer
 import no.nav.su.person.pdl.PersonFraPDL
+import no.nav.su.person.pdl.TokenProvider
 import no.nav.su.person.sts.StsConsumer
 import org.json.JSONObject
 import org.slf4j.Logger
@@ -60,8 +61,8 @@ private val sikkerLogg = LoggerFactory.getLogger("sikkerLogg")
 internal fun Application.superson(
    jwkConfig: JSONObject = getJWKConfig(fromEnvironment("azure.wellKnownUrl")),
    jwkProvider: JwkProvider = JwkProviderBuilder(URL(jwkConfig.getString("jwks_uri"))).build(),
-   stsConsumer: StsConsumer = StsConsumer(fromEnvironment("integrations.sts.url"), fromEnvironment("serviceuser.username"), fromEnvironment("serviceuser.password")),
-   pdlConsumer: PdlConsumer = PdlConsumer(fromEnvironment("integrations.pdl.url"), stsConsumer)
+   auth: TokenProvider = StsConsumer(fromEnvironment("integrations.sts.url"), fromEnvironment("serviceuser.username"), fromEnvironment("serviceuser.password")),
+   pdlConsumer: PdlConsumer = PdlConsumer(fromEnvironment("integrations.pdl.url"), auth)
 ) {
 
    setUncaughtExceptionHandler(logger = log)

@@ -50,7 +50,7 @@ val jwtStub = JwtStub()
 internal fun Application.usingMocks(
    jwkConfig: JSONObject = mockk(relaxed = true),
    jwkProvider: JwkProvider = mockk(relaxed = true),
-   stsConsumer: StsConsumer = mockk(relaxed = true),
+   stsMock: StsConsumer = mockk(relaxed = true),
    pdlConsumer: PdlConsumer = mockk(relaxed = true)
 ) {
    val e = Base64.getEncoder().encodeToString(jwtStub.publicKey.publicExponent.toByteArray())
@@ -68,7 +68,7 @@ internal fun Application.usingMocks(
    superson(
       jwkConfig = jwkConfig,
       jwkProvider = jwkProvider,
-      stsConsumer = stsConsumer,
+      auth = stsMock,
       pdlConsumer = pdlConsumer
    )
 }
