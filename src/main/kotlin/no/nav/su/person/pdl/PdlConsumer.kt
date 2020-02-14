@@ -7,7 +7,6 @@ import io.ktor.http.HttpHeaders.Accept
 import io.ktor.http.HttpHeaders.Authorization
 import io.ktor.http.HttpHeaders.ContentType
 import no.nav.su.person.Feil
-import no.nav.su.person.sts.StsConsumer
 import org.slf4j.LoggerFactory
 
 const val NAV_CONSUMER_TOKEN = "Nav-Consumer-Token"
@@ -27,7 +26,7 @@ internal class PdlConsumer(private val pdlUrl: String, private val systembruker:
       val pdlRequest = PdlRequest(query, Variables(ident = ident))
 
       val (_, _, result) = "$pdlUrl/graphql".httpPost()
-         .header(Authorization, "Bearer $autorisertSaksbehandler")
+         .header(Authorization, autorisertSaksbehandler)
          .header(NAV_CONSUMER_TOKEN, "Bearer ${systembruker.token()}")
          .header(NAV_TEMA, SUP)
          .header(Accept, Json)

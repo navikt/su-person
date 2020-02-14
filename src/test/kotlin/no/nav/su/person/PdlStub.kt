@@ -2,7 +2,9 @@ package no.nav.su.person
 
 import com.github.tomakehurst.wiremock.client.MappingBuilder
 import com.github.tomakehurst.wiremock.client.WireMock
-import io.ktor.http.HttpHeaders
+import io.ktor.http.HttpHeaders.Accept
+import io.ktor.http.HttpHeaders.Authorization
+import io.ktor.http.HttpHeaders.ContentType
 import io.ktor.http.HttpStatusCode
 import no.nav.su.person.pdl.NAV_CONSUMER_TOKEN
 import no.nav.su.person.pdl.NAV_TEMA
@@ -17,15 +19,13 @@ class PdlStub {
    }
 
    fun hentPerson(json: String): MappingBuilder {
-      val query = this::class.java.getResource("/hentPerson.graphql").readText()
-
       return WireMock.post(WireMock.urlPathEqualTo("/graphql"))
          .withRequestBody(WireMock.equalTo(validGraphQlJson))
-         .withHeader(HttpHeaders.Authorization, WireMock.containing("Bearer"))
+         .withHeader(Authorization, WireMock.matching("^(?!\\bBearer\\b.*\\bBearer\\b)^\\bBearer\\b.*"))
          .withHeader(NAV_CONSUMER_TOKEN, WireMock.equalTo("Bearer $STS_TOKEN"))
          .withHeader(NAV_TEMA, WireMock.equalTo(SUP))
-         .withHeader(HttpHeaders.Accept, WireMock.equalTo("application/json"))
-         .withHeader(HttpHeaders.ContentType, WireMock.equalTo("application/json"))
+         .withHeader(Accept, WireMock.equalTo("application/json"))
+         .withHeader(ContentType, WireMock.equalTo("application/json"))
          .willReturn(WireMock.okJson(json))
    }
 
