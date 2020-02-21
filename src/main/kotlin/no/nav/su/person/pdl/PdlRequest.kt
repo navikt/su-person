@@ -7,5 +7,11 @@ data class PdlRequest(
 
 data class Variables(
    val ident: String,
-   val navnHistorikk: Boolean = false
-)
+   val historikk: Boolean = false,
+   val identGrupper: List<String> = listOf(FOLKEREGISTERIDENT, AKTORID)
+) {
+   companion object {
+      const val FOLKEREGISTERIDENT = "FOLKEREGISTERIDENT"
+      const val AKTORID = "AKTORID"
+   }
+}

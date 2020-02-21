@@ -1,6 +1,7 @@
 package no.nav.su.person.pdl
 
 import no.nav.su.person.PdlStub
+import no.nav.su.person.PdlStub.Companion.pdlIdenter
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 import kotlin.test.fail
@@ -15,6 +16,8 @@ class PDLSvarTolkTest {
          is PersonFraPDL -> {
             assertEquals("OLA", svar.fornavn)
             assertEquals("NORMANN", svar.etternavn)
+            assertEquals("12345678910", svar.fnr)
+            assertEquals("10987654321", svar.aktorId)
          }
       }
    }
@@ -54,7 +57,8 @@ class PDLSvarTolkTest {
                            }
                         }
                      ]
-                   }
+                   },
+                   $pdlIdenter
                  }
                }
    """.trimIndent()).resultat as PersonFraPDL
@@ -79,7 +83,8 @@ class PDLSvarTolkTest {
                            }
                         }
                      ]
-                   }
+                   },
+                   $pdlIdenter
                  }
                }
    """.trimIndent()).resultat as PersonFraPDL
@@ -113,7 +118,8 @@ class PDLSvarTolkTest {
                            }
                         }
                      ]
-                   }
+                   },
+                   $pdlIdenter
                  }
                }
    """.trimIndent()).resultat as PersonFraPDL

@@ -1,5 +1,7 @@
 package no.nav.su.person.pdl
 
+import no.nav.su.person.pdl.Variables.Companion.AKTORID
+import no.nav.su.person.pdl.Variables.Companion.FOLKEREGISTERIDENT
 import org.json.JSONObject
 
 internal class PDLSvarTolk(pdlData: String) {
@@ -11,24 +13,35 @@ private fun String.tolk(): TolketSvar {
    return if (json.has("errors")) {
       FeilFraPDL(json.getJSONArray("errors").get(0) as JSONObject)
    } else {
-      PersonFraPDL(json.getJSONObject("data").getJSONObject("hentPerson"))
+      val data = json.getJSONObject("data")
+      PersonFraPDL(
+         data.getJSONObject("hentPerson"),
+         data.getJSONObject("hentIdenter")
+      )
    }
 }
 
 internal sealed class TolketSvar
-internal class PersonFraPDL(person: JSONObject) : TolketSvar() {
+internal class PersonFraPDL(person: JSONObject, identer: JSONObject) : TolketSvar() {
+   private val alleIdenter = identer.getJSONArray("identer").map {
+      PDLIdent(it as JSONObject)
+   }
    private val alleNavn = person.getJSONArray("navn").map {
       PDLNavn(it as JSONObject)
    }
    private val navnData: PDLNavn =
       alleNavn.find { it.kildeComparable == "FREG" } ?: alleNavn.find { it.kildeComparable == "PDL" } ?: alleNavn.first()
 
+   val fnr: String = alleIdenter.find { it.gruppe == FOLKEREGISTERIDENT }!!.ident
+   val aktorId: String = alleIdenter.find { it.gruppe == AKTORID }!!.ident
    val fornavn: String = navnData.fornavn
    val mellomnavn: String = navnData.mellomnavn
    val etternavn: String = navnData.etternavn
 
    fun toJson(): String = """
       {
+         "fnr": "$fnr",
+         "aktorId": "$aktorId",
          "fornavn": "$fornavn",
          "mellomnavn": "$mellomnavn",
          "etternavn": "$etternavn"
@@ -42,6 +55,11 @@ private class PDLNavn(source: JSONObject) {
    val etternavn: String = source.getString("etternavn")
    val kilde: String = source.getJSONObject("metadata").getString("master")
    val kildeComparable = kilde.toUpperCase()
+}
+
+private class PDLIdent(source: JSONObject) {
+   val ident: String = source.getString("ident")
+   val gruppe: String = source.getString("gruppe").toUpperCase()
 }
 
 internal class FeilFraPDL(error: JSONObject) : TolketSvar() {

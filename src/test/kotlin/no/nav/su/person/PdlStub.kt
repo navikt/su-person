@@ -10,7 +10,7 @@ import no.nav.su.person.pdl.NAV_CONSUMER_TOKEN
 import no.nav.su.person.pdl.NAV_TEMA
 import no.nav.su.person.pdl.SUP
 
-private val validGraphQlJson = """{"query":"query(${'$'}ident: ID!, ${'$'}navnHistorikk: Boolean!){\n   hentPerson(ident: ${'$'}ident) {\n      navn(historikk: ${'$'}navnHistorikk) {\n         fornavn\n         mellomnavn\n         etternavn\n         metadata {\n            master\n         }\n      }\n   }\n}\n","variables":{"ident":"12345678910","navnHistorikk":false}}"""
+private val validGraphQlJson = """{"query":"query(${'$'}ident: ID!, ${'$'}historikk: Boolean!, ${'$'}identGrupper: [IdentGruppe!]) {\n   hentPerson(ident: ${'$'}ident) {\n      navn(historikk: ${'$'}historikk) {\n         fornavn\n         mellomnavn\n         etternavn\n         metadata {\n            master\n         }\n      }\n   }\n   hentIdenter(ident: ${'$'}ident, grupper: ${'$'}identGrupper, historikk: ${'$'}historikk) {\n      identer {\n         ident\n         gruppe\n      }\n   }\n}\n\n","variables":{"ident":"12345678910","historikk":false,"identGrupper":["FOLKEREGISTERIDENT","AKTORID"]}}"""
 
 class PdlStub {
    fun httpError(httpCode: HttpStatusCode, message: String): MappingBuilder {
@@ -30,6 +30,21 @@ class PdlStub {
    }
 
    companion object {
+      val pdlIdenter = """
+         "hentIdenter": {
+            "identer": [
+               {
+                  "ident": "12345678910",
+                  "gruppe": "FOLKEREGISTERIDENT"
+               },
+               {
+                  "ident": "10987654321",
+                  "gruppe": "AKTORID"
+               }
+            ]
+         }
+      """.trimIndent()
+
       val pdlHentPersonOkJson = """
       {
                  "data": {
@@ -52,7 +67,8 @@ class PdlStub {
                            }
                         }
                      ]
-                   }
+                   },
+                   $pdlIdenter
                  }
                }
    """.trimIndent()

@@ -1,6 +1,6 @@
-query($ident: ID!, $navnHistorikk: Boolean!){
+query($ident: ID!, $historikk: Boolean!, $identGrupper: [IdentGruppe!]) {
    hentPerson(ident: $ident) {
-      navn(historikk: $navnHistorikk) {
+      navn(historikk: $historikk) {
          fornavn
          mellomnavn
          etternavn
@@ -9,4 +9,11 @@ query($ident: ID!, $navnHistorikk: Boolean!){
          }
       }
    }
+   hentIdenter(ident: $ident, grupper: $identGrupper, historikk: $historikk) {
+      identer {
+         ident
+         gruppe
+      }
+   }
 }
+
