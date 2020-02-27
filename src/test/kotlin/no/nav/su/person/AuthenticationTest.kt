@@ -21,7 +21,7 @@ internal class AuthenticationTest {
          testEnv()
          usingMocks()
       }) {
-         withCallId(Get, PERSON_PATH)
+         withCorrelationId(Get, PERSON_PATH)
       }.apply {
          assertEquals(Unauthorized, response.status())
       }
@@ -33,7 +33,7 @@ internal class AuthenticationTest {
          testEnv()
          usingMocks()
       }) {
-         withCallId(Get, "$PERSON_PATH?ident=$TEST_IDENT") {
+         withCorrelationId(Get, "$PERSON_PATH?ident=$TEST_IDENT") {
             addHeader(Authorization, "Bearer ${jwtStub.createTokenFor()}")
          }
       }.apply {
@@ -49,7 +49,7 @@ internal class AuthenticationTest {
          testEnv()
          usingMocks()
       }) {
-         withCallId(Get, PERSON_PATH) {
+         withCorrelationId(Get, PERSON_PATH) {
             addHeader(Authorization, "Bearer $token")
          }
       }.apply {
@@ -65,7 +65,7 @@ internal class AuthenticationTest {
          testEnv()
          usingMocks()
       }) {
-         withCallId(Get, PERSON_PATH) {
+         withCorrelationId(Get, PERSON_PATH) {
             addHeader(Authorization, "Bearer $token")
          }
       }.apply {
@@ -81,7 +81,7 @@ internal class AuthenticationTest {
          testEnv()
          usingMocks()
       }) {
-         withCallId(Get, PERSON_PATH) {
+         withCorrelationId(Get, PERSON_PATH) {
             addHeader(Authorization, "Bearer $token")
          }
       }.apply {

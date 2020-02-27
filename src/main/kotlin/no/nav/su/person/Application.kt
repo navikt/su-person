@@ -15,7 +15,7 @@ import io.ktor.features.CallLogging
 import io.ktor.features.RejectedCallIdException
 import io.ktor.features.callId
 import io.ktor.http.HttpHeaders
-import io.ktor.http.HttpHeaders.XRequestId
+import io.ktor.http.HttpHeaders.XCorrelationId
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.HttpStatusCode.Companion.OK
 import io.ktor.http.HttpStatusCode.Companion.fromValue
@@ -103,7 +103,7 @@ internal fun Application.superson(
    routing {
       authenticate {
          install(CallId) {
-            header(XRequestId)
+            header(XCorrelationId)
             generate { "invalid" }
             verify { callId: String ->
                if (callId == "invalid") throw RejectedCallIdException(callId) else true
@@ -112,7 +112,7 @@ internal fun Application.superson(
          install(CallLogging) {
             level = Level.INFO
             intercept(ApplicationCallPipeline.Monitoring) {
-               MDC.put(XRequestId, call.callId)
+               MDC.put(XCorrelationId, call.callId)
             }
             filter { call ->
                listOf(IS_ALIVE_PATH, IS_READY_PATH, METRICS_PATH).none {

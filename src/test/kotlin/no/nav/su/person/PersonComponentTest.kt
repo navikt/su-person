@@ -26,7 +26,7 @@ internal class PersonComponentTest {
          superson()
       }) {
          stubFor(pdlStub.hentPerson(PdlStub.pdlHentPersonOkJson))
-         withCallId(Get, "$PERSON_PATH?ident=$TEST_IDENT") {
+         withCorrelationId(Get, "$PERSON_PATH?ident=$TEST_IDENT") {
             addHeader(Authorization, "Bearer ${jwtStub.createTokenFor()}")
          }
       }.apply {
@@ -44,7 +44,7 @@ internal class PersonComponentTest {
          superson()
       }) {
          stubFor(pdlStub.hentPerson(PdlStub.pdlUnauthenticatedJson))
-         withCallId(Get, "$PERSON_PATH?ident=$TEST_IDENT") {
+         withCorrelationId(Get, "$PERSON_PATH?ident=$TEST_IDENT") {
             addHeader(Authorization, "Bearer ${jwtStub.createTokenFor()}")
          }
       }.apply {
@@ -59,7 +59,7 @@ internal class PersonComponentTest {
          superson()
       }) {
          stubFor(pdlStub.httpError(BadRequest, "this is some error message"))
-         withCallId(Get, "$PERSON_PATH?ident=$TEST_IDENT") {
+         withCorrelationId(Get, "$PERSON_PATH?ident=$TEST_IDENT") {
             addHeader(Authorization, "Bearer ${jwtStub.createTokenFor()}")
          }
       }.apply {

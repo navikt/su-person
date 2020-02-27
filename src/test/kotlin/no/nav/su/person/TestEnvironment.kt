@@ -5,7 +5,7 @@ import com.auth0.jwk.JwkProvider
 import com.github.tomakehurst.wiremock.WireMockServer
 import io.ktor.application.Application
 import io.ktor.config.MapApplicationConfig
-import io.ktor.http.HttpHeaders.XRequestId
+import io.ktor.http.HttpHeaders.XCorrelationId
 import io.ktor.http.HttpMethod
 import io.ktor.server.testing.TestApplicationCall
 import io.ktor.server.testing.TestApplicationEngine
@@ -73,13 +73,13 @@ internal fun Application.usingMocks(
    )
 }
 
-fun TestApplicationEngine.withCallId(
+fun TestApplicationEngine.withCorrelationId(
    method: HttpMethod,
    uri: String,
    setup: TestApplicationRequest.() -> Unit = {}
 ): TestApplicationCall {
    return handleRequest(method, uri) {
-      addHeader(XRequestId, DEFAULT_CALL_ID)
+      addHeader(XCorrelationId, DEFAULT_CALL_ID)
       setup()
    }
 }
